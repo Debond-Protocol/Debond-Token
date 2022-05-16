@@ -1,7 +1,7 @@
 pragma solidity 0.8.10;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "../interfaces/IDebondToken.sol";
-import "../interfaces/ICollateral.sol";
+import "./interfaces/IDebondToken.sol";
+import "./interfaces/ICollateral.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "../interfaces/IDebondToken.sol";
 
 
-contract DBIT is ERC20 , IDebondToken ,AccessControl , ICollateral{
+contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral{
     // this minter role will be for airdropToken , bank or the governance Contract
     //bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
    // bytes32 public constant 
