@@ -1,7 +1,7 @@
 pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./interfaces/IAirdropToken.sol";
-import "./interfaces/IdGOV.sol";
+import "../interfaces/IAirdropToken.sol";
+import "../interfaces/IdGOV.sol";
 
 contract AirdropToken is IAirdropToken, Ownable {
     uint256 public _airDropSupply;// to be taken from airdrop token

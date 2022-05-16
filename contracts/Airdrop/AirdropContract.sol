@@ -1,10 +1,10 @@
 pragma solidity ^0.8.9;
-import "./interfaces/IAirdropContract.sol"; // Solmate: ERC20
 
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol"; // OZ: MerkleProof
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-import "./interfaces/IAirdropToken.sol";
+import "../interfaces/IAirdropContract.sol";
+import "../interfaces/IAirdropToken.sol";
 
 contract AirdropContract is IAirdropContract, AccessControl {
     bytes32 public merkleRoot;

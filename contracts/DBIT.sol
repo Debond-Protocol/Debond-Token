@@ -1,12 +1,10 @@
-pragma solidity 0.8.10;
+pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "./interfaces/IDebondToken.sol";
-import "./interfaces/ICollateral.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-import "../interfaces/IDebondToken.sol";
+import "./interfaces/IDebondToken.sol";
+import "./interfaces/ICollateral.sol";
 
 
 contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral{

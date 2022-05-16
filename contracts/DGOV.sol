@@ -1,13 +1,12 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
-import "../interfaces/IDebondToken.sol";
-
 import "@openzeppelin/contracts/access/Ownable.sol";
-
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-
 import "@openzeppelin/contracts/access/AccessControl.sol";
+
+import "./interfaces/IDebondToken.sol";
+
 
 
 
