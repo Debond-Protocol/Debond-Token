@@ -18,11 +18,12 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
     limitations under the License.
 */
 
-interface IDebondToken is IERC20 {
+interface IDebondToken  {
     function mintCollateralisedSupply(address _to, uint256 _amount) external ;
 
     function mintAllocatedSupply(address _to, uint256 _amount) external  ; 
 
+    function mintAirdroppedSupply(address _to, uint256 _amount) external;
         
     function setGovernanceContract(address governance_address)
         external
@@ -31,7 +32,7 @@ interface IDebondToken is IERC20 {
         external    
         returns (bool);
     function supplyCollateralised() external returns(uint256);
-    
+
     function directTransfer(
         address _from,
         address _to,

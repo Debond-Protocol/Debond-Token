@@ -4,14 +4,13 @@ pragma solidity ^0.8.9;
 
 interface IdGOV { 
 
-    function lockedBalance(address) external view returns (uint256);
+    function setLockedBalance(address) external ;
 
     function allocatedSupply() external view returns (uint256);
 
-    function AirdropedSupply() external view returns (uint256);    
-
-
-
+    function AirdropedSupply() external view returns (uint256);   
+    /**getting locked balance for the given address */
+    function getLockedBalance(address account) external view returns (uint256);
 
     function directTransfer(
         address _from,
