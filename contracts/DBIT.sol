@@ -1,4 +1,18 @@
-pragma solidity ^0.8.10;
+pragma solidity ^0.8.0;
+
+// SPDX-License-Identifier: apache 2.0
+/*
+    Copyright 2020 Sigmoid Foundation <info@SGM.finance>
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./interfaces/IDebondToken.sol";
 import "./interfaces/ICollateral.sol";
@@ -64,7 +78,7 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
         return _lockedSupply;
     }
 
-    function LockedBalance(address account) external returns (uint256) {
+    function LockedBalance(address account) external view returns (uint256) {
         
 
         return  (1**8-(2 * _collateralisedSupply *(1**9)) / _airdroppedSupply) * (_airdroppedBalance[account] /1**8);
@@ -72,6 +86,7 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
 
     function _checkIfItsLockedSupply(address from, uint256 amountToTransfer)
         internal
+        view
         returns (bool)
     {
         return ((balanceOf(from) - this.LockedBalance(from)) >=

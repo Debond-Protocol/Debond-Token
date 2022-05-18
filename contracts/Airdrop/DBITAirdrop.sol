@@ -1,3 +1,4 @@
+//
 pragma solidity ^0.8.0;
 import "../interfaces/IDebondToken.sol";
 import "../interfaces/IDBITAirdrop.sol";
@@ -105,7 +106,7 @@ contract DBITAirdrop is IDBITAirdrop, Ownable {
         return true;
     }
 
-    function startClaim() public returns (bool) {
+    function startClaim() public view returns (bool) {
         require(msg.sender == owner(), "SASH Credit Airdrop: Dev only.");
         require(block.timestamp >= claimDuration, "SASH Credit Airdrop: too early.");
         require(

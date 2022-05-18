@@ -6,6 +6,6 @@ interface IDBITAirdrop {
 
     function claimAirdrop(bytes32[]  memory _proof, uint256 airdrop_index, address _to, uint256 _amount) external  returns (bool);
     function setAirdrop(bytes32 _merkleRoot)external returns (bool);
-    function startClaim()external returns (bool);
+    function startClaim()external view returns (bool);
 
 }

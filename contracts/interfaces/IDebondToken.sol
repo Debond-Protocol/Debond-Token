@@ -39,4 +39,7 @@ interface IDebondToken  {
         uint256 _amount
     ) external  returns (bool);
    // function lockedBalance(address account) external view returns (uint256);
+
+
+
  }
