@@ -128,7 +128,8 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
         _airdroppedSupply += _amount;
         _airdroppedBalance[_to] += _amount;
     }
-
+    
+    // THE GOVERNANCE FUNCTION SHOLD BE IN A SEPERATED LIB
     function setGovernanceContract(address governance_address)
         public
         returns (bool)
@@ -152,4 +153,5 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
         _exchangeAddress = exchange_address;
         return (true);
     }
+    //WE NEED ALSO AN ACTIVE FUNCTION IN THE LIB
 }
