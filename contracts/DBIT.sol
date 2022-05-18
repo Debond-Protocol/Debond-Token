@@ -60,14 +60,14 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
     {
         return _collateralisedSupply;
     }
-
+    // getAirdropedSupply
     function getLockedSupply() external view returns (uint256) {
         return _lockedSupply;
     }
 
     function LockedBalance(address account) external returns (uint256) {
         
-
+    //return 1e8  and 2e9 will be better then 1**8 or 2*1**9
         return  (1**8-(2 * _collateralisedSupply *(1**9)) / _airdroppedSupply) * (_airdroppedBalance[account] /1**8);
     }
 
