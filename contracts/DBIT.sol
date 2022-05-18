@@ -19,6 +19,7 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
     address _governanceAddress;
     address _exchangeAddress;
     // checks locked supply.
+    // SOME VARIBLES IS NOT INTERNAL AND SOME IS
     mapping(address => uint256) collateralisedBalance;
     mapping(address => uint256) allocatedBalance;
     mapping(address => uint256) _airdroppedBalance;
