@@ -62,7 +62,7 @@ contract DBITAirdrop is IDBITAirdrop, Ownable {
         return false;
     }
 
-    // _amount is the amount of SASH Credit no need to enter decimals _amount 1  = 1 SASH
+    // _amount is the amount of DBIT Credit no need to enter decimals .
     function claimAirdrop(
         bytes32[] memory _proof,
         uint256 airdrop_index,
@@ -73,13 +73,13 @@ contract DBITAirdrop is IDBITAirdrop, Ownable {
         require(claim_started == true, "initial claim time isnt passed.");
         require(
             block.timestamp <= claimStart + claimDuration,
-            "SASH Credit Airdrop: Time limit passed."
+            "DBIT Credit Airdrop: Time limit passed."
         );
         bytes32 node = keccak256(abi.encodePacked(airdrop_index, _to, _amount));
         assert(merkleVerify(_proof, merkleRoot, node) == true);
         require(
             claimStatus(_to) == false,
-            "SASH Credit Airdrop: Drop already claimed."
+            "DBIT Credit Airdrop: Drop already claimed."
         );
 
         token.mintAirdroppedSupply(_to, _amount);
@@ -88,35 +88,37 @@ contract DBITAirdrop is IDBITAirdrop, Ownable {
         return true;
     }
 
-    function setAirdrop(bytes32 _merkleRoot) public returns (bool) {
+    function setAirdrop(bytes32 _merkleRoot, uint airdropSupply) public returns (bool) {
         require(
             msg.sender == owner(),
             "DBIT Credit Airdrop: core team can init."
         );
         require(
             block.timestamp >= claimDuration,
-            "SASH Credit Airdrop: too early."
+            "DBIT Credit Airdrop: too early."
         );
         require(
             claim_started == false,
-            "SASH Credit Airdrop: already started."
+            "DBIT Credit Airdrop: already started."
         );
+        token.setAirdroppedSupply(airdropSupply);
         merkleRoot = _merkleRoot;
         merkleRoot_set = true;
         return true;
     }
 
     function startClaim() public view returns (bool) {
-        require(msg.sender == owner(), "SASH Credit Airdrop: Dev only.");
-        require(block.timestamp >= claimDuration, "SASH Credit Airdrop: too early.");
+        require(msg.sender == owner(), "DBIT Credit Airdrop: Dev only.");
+        require(block.timestamp >= claimDuration, "DBIT Credit Airdrop: too early.");
         require(
             claim_started == false,
-            "SASH Credit Airdrop: Claim already started."
+            "DBIT Credit Airdrop: Claim already started."
         );
         require(
             merkleRoot_set == true,
-            "SASH Credit Airdrop: Merkle root invalid."
+            "DBIT Credit Airdrop: Merkle root invalid."
         );
+
         claim_started == true;
         return true;
     }

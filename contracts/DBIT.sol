@@ -34,6 +34,7 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
     address _airdropAddress;
 
     // checks locked supply.
+    //@yu SOME VARIBLES IS NOT INTERNAL AND SOME IS
     mapping(address => uint256) collateralisedBalance;
     mapping(address => uint256) allocatedBalance;
     mapping(address => uint256) _airdroppedBalance;
@@ -91,6 +92,7 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
         
         uint lockedBalance =  (1-(20 * _collateralisedSupply  / _airdroppedSupply)) * _airdroppedBalance[account];
         return lockedBalance  < 0  ? 0 : lockedBalance ;
+
     }
 
     function _checkIfItsLockedSupply(address from, uint256 amountToTransfer)
@@ -152,7 +154,6 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
         _airdroppedBalance[_to] += _amount;
     }
 
-  
 
     function setBankContract(address bank_address) public override returns (bool) {
         require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
@@ -169,13 +170,12 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
         return (true);
     }
 
+
     function setAirdropContract(address new_Airdrop) public returns (bool) {
     require(msg.sender == _airdropAddress);
     _airdropAddress = new_Airdrop;
     return (true);
 }
-
-
 
      function setAirdroppedSupply(uint256 new_supply) public returns (bool) {
         require(
@@ -184,6 +184,5 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
         );
         _airdroppedSupply = new_supply;
     }
-
 
 }
