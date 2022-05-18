@@ -1,6 +1,6 @@
 pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
-import "../interfaces/IdGOV.sol";
+import "./interfaces/IdGOV.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -21,7 +21,7 @@ contract DGOV is ERC20Capped, Ownable, IdGOV, AccessControl {
     address _bankAddress;
     address _governanceAddress;
     address _exchangeAddress;
-    address _airdropAddress;
+    address _airdropAddress; // address of DBITCreditAirdrop.
 
     // checks locked supply.
     mapping(address => uint256) lockedBalance;
@@ -29,7 +29,7 @@ contract DGOV is ERC20Capped, Ownable, IdGOV, AccessControl {
     mapping(address => uint256) _allocatedBalance;
 
     modifier onlyAirdropToken() {
-        require(msg.sender == AirdropToken, "access denied");
+        require(msg.sender == _airdropAddress, "access denied");
         _;
     }
 

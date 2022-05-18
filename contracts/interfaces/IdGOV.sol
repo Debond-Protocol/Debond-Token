@@ -3,9 +3,6 @@ pragma solidity ^0.8.9;
 
 
 interface IdGOV { 
-
-    function setLockedBalance(address) external ;
-
     function allocatedSupply() external view returns (uint256);
 
     function AirdropedSupply() external view returns (uint256);   

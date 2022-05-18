@@ -1,12 +1,10 @@
 pragma solidity ^0.8.10;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "../interfaces/IDebondToken.sol";
-import "../interfaces/ICollateral.sol";
+import "./interfaces/IDebondToken.sol";
+import "./interfaces/ICollateral.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
-
-import "../interfaces/IDebondToken.sol";
 
 contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
     // this minter role will be for airdropToken , bank or the governance Contract
@@ -23,7 +21,6 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
     // checks locked supply.
     mapping(address => uint256) collateralisedBalance;
     mapping(address => uint256) allocatedBalance;
-    mapping(address => uint256) lockedBalance;
     mapping(address => uint256) _airdroppedBalance;
 
     /** currently setting only the main token parameters , and once the other contracts are deployed then use setContractAddress to set up these contracts.
@@ -67,26 +64,17 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
         return _lockedSupply;
     }
 
-    function setLockedSupply(address account) external returns (uint256) {
-        require(
-            _collateralisedSupply > _airdroppedSupply * _airdroppedSupply,
-            "setLockedSupply: not sufficient collateralised supply"
-        );
+    function LockedBalance(address account) external returns (uint256) {
+        
 
-        lockedBalance[account] =
-            (_collateralisedSupply * 1e18) /
-            ((_airdroppedSupply * _airdroppedSupply) / 5e20);
-
-        _lockedSupply += _lockedSupply;
-
-        return _lockedSupply;
+        return  (1**8-(2 * _collateralisedSupply *(1**9)) / _airdroppedSupply) * (_airdroppedBalance[account] /1**8);
     }
 
     function _checkIfItsLockedSupply(address from, uint256 amountToTransfer)
         internal
         returns (bool)
     {
-        return ((balanceOf(from) - this.setLockedSupply(from)) >=
+        return ((balanceOf(from) - this.LockedBalance(from)) >=
             amountToTransfer);
     }
 

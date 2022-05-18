@@ -4,5 +4,6 @@ const DGOV = artifacts.require("DGOV");
 module.exports = function (deployer) {
     deployer.deploy(DBIT);
     deployer.deploy(DGOV);
+    console.log("deployed ", DBIT + '' + DGOV);
   };
   
