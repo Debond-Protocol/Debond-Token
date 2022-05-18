@@ -19,7 +19,7 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
     address _governanceAddress;
     address _exchangeAddress;
     // checks locked supply.
-    // SOME VARIBLES IS NOT INTERNAL AND SOME IS
+    //@yu SOME VARIBLES IS NOT INTERNAL AND SOME IS
     mapping(address => uint256) collateralisedBalance;
     mapping(address => uint256) allocatedBalance;
     mapping(address => uint256) _airdroppedBalance;
@@ -130,7 +130,7 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
         _airdroppedBalance[_to] += _amount;
     }
     
-    // THE GOVERNANCE FUNCTION SHOLD BE IN A SEPERATED LIB
+    //@yu THE GOVERNANCE FUNCTION SHOLD BE IN A SEPERATED LIB
     function setGovernanceContract(address governance_address)
         public
         returns (bool)
@@ -154,5 +154,5 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
         _exchangeAddress = exchange_address;
         return (true);
     }
-    //WE NEED ALSO AN ACTIVE FUNCTION IN THE LIB
+    //@yu WE NEED ALSO AN ACTIVE FUNCTION IN THE LIB
 }
