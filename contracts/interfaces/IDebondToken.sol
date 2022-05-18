@@ -38,4 +38,10 @@ interface IDebondToken  {
     function setAirdroppedSupply(uint256 new_supply) external returns(bool); 
 
 
+    function totalSupply()
+        external
+        view
+        returns (uint256);
+
+
  }

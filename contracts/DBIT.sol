@@ -51,7 +51,7 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
         public
         view
         virtual
-        override(ERC20)
+        override(ERC20,IDebondToken)
         returns (uint256)
     {
         return
