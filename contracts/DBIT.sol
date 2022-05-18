@@ -43,11 +43,7 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
      */
 
     constructor() ERC20("DBIT Token", "DBIT") {
-         grantRole(MINTER_ROLE, _bankAddress);
-        grantRole(MINTER_ROLE, _governanceAddress);
-        grantRole(MINTER_ROLE, _exchangeAddress);
-        grantRole(MINTER_ROLE,_airdropAddress);
-
+        
 
     }
 

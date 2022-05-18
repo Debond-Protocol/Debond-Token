@@ -1,9 +1,8 @@
 const DBIT = artifacts.require("DBIT");
 const DGOV = artifacts.require("DGOV");
 
-module.exports = function (deployer) {
-    deployer.deploy(DBIT);
-    deployer.deploy(DGOV);
-    console.log("deployed ", DBIT + '' + DGOV);
+module.exports = async function (deployer, accounts) {
+    await  deployer.deploy(DBIT);
+    await deployer.deploy(DGOV);
   };
   

@@ -15,7 +15,8 @@ let DBITAirdrop : DBITAirdropInstance;
 let Exchange : ExchangeInstance;
 
 before('instantiation', async() => {
-    let [deployer , user1 , User2] = accounts;
+    let [deployer , User1 , User2] = accounts;
+   
     dbitObj = await DBIT.deployed();
     DBITAirdrop = await DBITAirdrop.deployed();
     Governance = await governance.deployed();
@@ -34,9 +35,9 @@ it('DBIT token is deployed',async() => {
 });
 
 it('DBIT is able to set contract address', async () => {
-    expect(await dbitObj.setBankContract(DBITAirdrop.address)).not.to.equal(false);
-    await dbitObj.setExchangeContract(Exchange.address).not.to.equal(false);
-    await dbitObj.setBankContract(Bank.address).not.to.equal(false);
+    expect(await dbitObj.setAirdropContract(DBITAirdrop.address)).not.to.equal(false);
+    expect(await dbitObj.setExchangeContract(Exchange.address)).not.to.equal(false);
+    expect(await dbitObj.setBankContract(Bank.address)).not.to.equal(false);
 
 
 
@@ -74,6 +75,9 @@ it('gets the locked supply initially as full supply ', async () => {
 
 await dbitObj.mintAirdroppedSupply(User2, 100, {from: DBITAirdrop.address});
 await dbitObj.mintAirdroppedSupply(User1, 100, {from: DBITAirdrop.address});
+
+await dbitObj.setAirdroppedSupply("200",{from:User2});
+
 
 
 })

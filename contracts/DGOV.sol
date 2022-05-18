@@ -61,11 +61,7 @@ imp: given that the core addresses themselves will be needing dbit / dgov addres
 
     constructor() ERC20Capped(10**18) ERC20("DGOV", "DGOV") {
         _maximumSupply = cap();
-        grantRole(MINTER_ROLE, _bankAddress);
-        grantRole(MINTER_ROLE, _exchangeAddress);
-        grantRole(MINTER_ROLE,_airdropAddress);
-        grantRole(DEFAULT_ADMIN_ROLE, _governanceAddress);
-        grantRole(MINTER_ROLE, _governanceAddress);
+        
 
     }
 
