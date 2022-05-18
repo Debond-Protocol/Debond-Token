@@ -38,6 +38,7 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
         return
             _allocatedSupply +
             _collateralisedSupply +
+            //@Yu the _lockedSupply is not needed here, because is a part of the _airdroppedSupply
             _lockedSupply +
             _airdroppedSupply;
     }
