@@ -22,16 +22,17 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
     // this minter role will be for airdropToken , bank or the governance Contract
-    //bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-    // bytes32 public constant
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     uint256 public _collateralisedSupply;
     uint256 public _allocatedSupply;
-    uint256 public _lockedSupply;
     uint256 public _airdroppedSupply;
-
+    bool isActive;
+    
     address _bankAddress;
     address _governanceAddress;
     address _exchangeAddress;
+    address _airdropAddress;
+
     // checks locked supply.
     mapping(address => uint256) collateralisedBalance;
     mapping(address => uint256) allocatedBalance;
@@ -40,7 +41,14 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
     /** currently setting only the main token parameters , and once the other contracts are deployed then use setContractAddress to set up these contracts.
      */
 
-    constructor() ERC20("DBIT Token", "DBIT") {}
+    constructor() ERC20("DBIT Token", "DBIT") {
+         grantRole(MINTER_ROLE, _bankAddress);
+        grantRole(MINTER_ROLE, _governanceAddress);
+        grantRole(MINTER_ROLE, _exchangeAddress);
+        grantRole(MINTER_ROLE,_airdropAddress);
+
+
+    }
 
     function totalSupply()
         public
@@ -52,7 +60,6 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
         return
             _allocatedSupply +
             _collateralisedSupply +
-            _lockedSupply +
             _airdroppedSupply;
     }
 
@@ -74,14 +81,16 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
         return _collateralisedSupply;
     }
 
-    function getLockedSupply() external view returns (uint256) {
-        return _lockedSupply;
+    function IsActive(bool status) public    returns(bool)
+    {   require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
+        isActive = status;
+        return true;
     }
 
     function LockedBalance(address account) external view returns (uint256) {
         
-
-        return  (1**8-(2 * _collateralisedSupply *(1**9)) / _airdroppedSupply) * (_airdroppedBalance[account] /1**8);
+        uint lockedBalance =  (1-(20 * _collateralisedSupply  / _airdroppedSupply)) * _airdroppedBalance[account];
+        return lockedBalance  < 0  ? 0 : lockedBalance ;
     }
 
     function _checkIfItsLockedSupply(address from, uint256 amountToTransfer)
@@ -101,8 +110,8 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
         address _from,
         address _to,
         uint256 _amount
-    ) public returns (bool) {
-        require(msg.sender == _exchangeAddress || msg.sender == _bankAddress);
+    ) public  override returns (bool) {
+        require(msg.sender == _exchangeAddress || msg.sender == _bankAddress );
 
         require(_checkIfItsLockedSupply(_from, _amount), "insufficient supply");
 
@@ -143,16 +152,9 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
         _airdroppedBalance[_to] += _amount;
     }
 
-    function setGovernanceContract(address governance_address)
-        public
-        returns (bool)
-    {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
-        _governanceAddress = governance_address;
-        return (true);
-    }
+  
 
-    function setBankContract(address bank_address) public returns (bool) {
+    function setBankContract(address bank_address) public override returns (bool) {
         require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
         _bankAddress = bank_address;
         return (true);
@@ -166,4 +168,22 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral {
         _exchangeAddress = exchange_address;
         return (true);
     }
+
+    function setAirdropContract(address new_Airdrop) public returns (bool) {
+    require(msg.sender == _airdropAddress);
+    _airdropAddress = new_Airdrop;
+    return (true);
+}
+
+
+
+     function setAirdroppedSupply(uint256 new_supply) public returns (bool) {
+        require(
+            hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
+            "DBIT: ACCESS DENIED "
+        );
+        _airdroppedSupply = new_supply;
+    }
+
+
 }

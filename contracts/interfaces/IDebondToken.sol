@@ -25,9 +25,6 @@ interface IDebondToken  {
 
     function mintAirdroppedSupply(address _to, uint256 _amount) external;
         
-    function setGovernanceContract(address governance_address)
-        external
-        returns (bool);
     function setBankContract(address bank_addres)
         external    
         returns (bool);
@@ -38,8 +35,7 @@ interface IDebondToken  {
         address _to,
         uint256 _amount
     ) external  returns (bool);
-   // function lockedBalance(address account) external view returns (uint256);
-
+    function setAirdroppedSupply(uint256 new_supply) external returns(bool); 
 
 
  }

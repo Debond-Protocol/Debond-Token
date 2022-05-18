@@ -21,9 +21,7 @@ interface IdGOV {
 
     function mintAllocatedSupply(address _to, uint256 _amount) external;
 
-    function setGovernanceContract(address governance_address)
-        external
-        returns (bool);
+   
 
     function setBankContract(address bank_address) external returns (bool);
     

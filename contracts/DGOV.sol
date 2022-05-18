@@ -24,10 +24,13 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract DGOV is ERC20Capped, Ownable, IdGOV, AccessControl {
     uint256 public _maximumSupply;
-    uint256 public _collateralisedSupply; // this will be  call by bank contract
-    uint256 public _allocatedSupply; // this corresponds to the tokens tallocated by governance , the functions to set this value will be called in proposal.
-    uint256 public _airdropedSupply; // set by the airdropedToken , decreases when people call mintAirdrop.
-    uint256 public _lockedSupply; // this will be storing total supply locked by hte airdrop
+    uint256  internal _collateralisedSupply; // this will be  call by bank contract
+    uint256  internal  _allocatedSupply; // this corresponds to the tokens tallocated by governance , the functions to set this value will be called in proposal.
+    uint256  internal _airdropedSupply; // set by the airdropedToken , decreases when people call mintAirdrop.
+    uint256  internal _lockedSupply; // this will be storing total supply locked by hte airdrop
+    bool isActive;
+
+
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
@@ -39,9 +42,9 @@ contract DGOV is ERC20Capped, Ownable, IdGOV, AccessControl {
     address _airdropAddress; // address of DBITCreditAirdrop.
 
     // checks locked supply.
-    mapping(address => uint256) lockedBalance;
-    mapping(address => uint256) _airdropedBalance;
-    mapping(address => uint256) _allocatedBalance;
+    mapping(address => uint256) public lockedBalance;
+    mapping(address => uint256)  internal _airdropedBalance;
+    mapping(address => uint256) internal _allocatedBalance;
 
     modifier onlyAirdropToken() {
         require(msg.sender == _airdropAddress, "access denied");
@@ -58,6 +61,18 @@ imp: given that the core addresses themselves will be needing dbit / dgov addres
 
     constructor() ERC20Capped(10**18) ERC20("DGOV", "DGOV") {
         _maximumSupply = cap();
+        grantRole(MINTER_ROLE, _bankAddress);
+        grantRole(MINTER_ROLE, _exchangeAddress);
+        grantRole(MINTER_ROLE,_airdropAddress);
+        grantRole(DEFAULT_ADMIN_ROLE, _governanceAddress);
+        grantRole(MINTER_ROLE, _governanceAddress);
+
+    }
+
+    function IsActive(bool status) public    returns(bool)
+    {   require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
+        isActive = status;
+        return true;
     }
 
     function totalSupply() public view override returns (uint256) {
@@ -65,28 +80,21 @@ imp: given that the core addresses themselves will be needing dbit / dgov addres
     }
 
     // set  locked supply balance for each account
-    function setLockedBalance(address _of, uint256 amount)
+    function LockedBalance(address _of)
         public
-        onlyAirdropToken
+        returns(uint256)
     {
-        // TODO: verify with yu , currently this mechanism doesnt correspond to the airdropToken contract.
-        // require(msg.sender == _governanceAddress || hasRole(DEFAULT_ADMIN_ROLE,msg.sender));
-
-        // require(_collateralisedSupply >=  _airdropedSupply * _airdropedSupply, "insufficient lockTokens");
-
+       
         //  lockedBalance[_of] = ((_collateralisedSupply * 1e18) / (_airdropedSupply * _airdropedSupply )/ 5e20);
-        lockedBalance[_of] += amount;
-        _lockedSupply += lockedBalance[_of];
+        
+        uint Balance =  (1-(20 * _collateralisedSupply  / _airdropedSupply)) * _airdropedBalance[_of];
+        uint256 result  = (Balance < 0 ? 0 : Balance);
+        return result ;
     }
 
     // gets the total lockedSupply  currently in circularion(TODO: check  the feasiblity).
 
-    function getLockedSupply() public view returns (uint256) {
-        //        return _lockedSupply;
-        return ((_collateralisedSupply * 1e18) /
-            (_airdropedSupply * _airdropedSupply) /
-            5e20);
-    }
+   
 
     // gets the amount of the lockedBalance for an given address
     function getLockedBalance(address account) public view returns (uint256) {
@@ -99,7 +107,7 @@ imp: given that the core addresses themselves will be needing dbit / dgov addres
         returns (bool)
     {
         return
-            (balanceOf(account) - this.getLockedBalance(account)) >=
+            (balanceOf(account) - this.LockedBalance(account)) >=
             amountTransfer;
     }
 
@@ -163,13 +171,7 @@ imp: given that the core addresses themselves will be needing dbit / dgov addres
         _allocatedSupply += _amount;
     }
 
-    function setGovernanceContract(address governance_address)
-        public
-        returns (bool)
-    {
-        _governanceAddress = governance_address;
-        return (true);
-    }
+  
 
     function setBankContract(address bank_address) public returns (bool) {
         _bankAddress = bank_address;
