@@ -102,6 +102,7 @@ contract DBITAirdrop is IDBITAirdrop, Ownable {
         );
         merkleRoot = _merkleRoot;
         merkleRoot_set = true;
+        // we need to update the _totalAirdropedSupply of the DBIT and DBGT contract accordingly.
         return true;
     }
 
