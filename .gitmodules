@@ -1,0 +1,3 @@
+[submodule "contracts/mock/Debond-Bank"]
+	path = contracts/mock/Debond-Bank
+	url = https://github.com/Debond-Protocol/Debond-Bank.git
