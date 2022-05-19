@@ -6,7 +6,7 @@ interface IdGOV {
     function AirdropedSupply() external view returns (uint256);
 
     /**getting locked balance for the given address */
-    function LockedBalance(address _of) external view returns (uint256  _lockedBalance);
+    function LockedBalance(address _of) external view returns (uint256 _lockedBalance);
 
     function directTransfer(
         address _from,
@@ -20,10 +20,10 @@ interface IdGOV {
 
     function mintAllocatedSupply(address _to, uint256 _amount) external;
 
-    
+
 
     /**
-    only set by airdropToken (which is further called by airdrop contract) in order to set airdrop token supply  
+    only set by airdropToken (which is further called by airdrop contract) in order to set airdrop token supply
      */
     function setAirdroppedSupply(uint256 new_supply) external returns (bool);
 

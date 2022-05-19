@@ -1,10 +1,16 @@
 //
 pragma solidity ^0.8.0;
-import "../interfaces/IDebondToken.sol";
-import "../interfaces/IDBITAirdrop.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract DBITAirdrop is IDBITAirdrop, Ownable {
+import "../interfaces/IDebondToken.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+
+
+contract DBITAirdrop is Ownable {
+
+    using ECDSA for bytes32;
+
+
     address dbitAddress;
     IDebondToken token;
 
@@ -28,84 +34,25 @@ contract DBITAirdrop is IDBITAirdrop, Ownable {
         claimDuration = _claimDuration;
     }
 
-    function merkleVerify(
-        bytes32[] memory proof,
-        bytes32 root,
-        bytes32 leaf
-    ) public pure returns (bool) {
-        bytes32 computedHash = leaf;
 
-        for (uint256 i = 0; i < proof.length; i++) {
-            bytes32 proofElement = proof[i];
-
-            if (computedHash <= proofElement) {
-                // Hash(current computed hash + current element of the proof)
-                computedHash = keccak256(
-                    abi.encodePacked(computedHash, proofElement)
-                );
-            } else {
-                // Hash(current element of the proof + current computed hash)
-                computedHash = keccak256(
-                    abi.encodePacked(proofElement, computedHash)
-                );
-            }
-        }
-
-        return computedHash == root;
+    modifier isClaimedAuthorized(uint256 quantity, bytes memory signature) {
+        require(verifySignature(quantity, signature) == owner(), "caller not authorized to get airdrop");
+        _;
     }
 
-    function claimStatus(address _to) public view returns (bool) {
-        if (withdrawClaimed[_to] == true) {
-            return true;
-        }
-
-        return false;
-    }
-
-    // _amount is the amount of DBIT Credit no need to enter decimals .
-    function claimAirdrop(
-        bytes32[] memory _proof,
-        uint256 airdrop_index,
-        address _to,
-        uint256 _amount
-    ) public returns (bool) {
-        require(_amount > 0, "must be an greater amount");
+    function claimAirdrop(uint256 _amount, bytes memory _signature) external isClaimedAuthorized(_amount, _signature) {
         require(claim_started == true, "initial claim time isnt passed.");
-        require(
-            block.timestamp <= claimStart + claimDuration,
-            "DBIT Credit Airdrop: Time limit passed."
-        );
-        bytes32 node = keccak256(abi.encodePacked(airdrop_index, _to, _amount));
-        assert(merkleVerify(_proof, merkleRoot, node) == true);
-        require(
-            claimStatus(_to) == false,
-            "DBIT Credit Airdrop: Drop already claimed."
-        );
-
-        token.mintAirdroppedSupply(_to, _amount);
-        withdrawClaimed[_to] = true;
-
-        return true;
+        require(!withdrawClaimed[msg.sender], "caller already got airdropped");
+        token.mintAirdroppedSupply(msg.sender, _amount);
+        withdrawClaimed[msg.sender] = true;
     }
 
-    function setAirdrop(bytes32 _merkleRoot, uint airdropSupply) public returns (bool) {
-        require(
-            msg.sender == owner(),
-            "DBIT Credit Airdrop: core team can init."
-        );
-        require(
-            block.timestamp >= claimDuration,
-            "DBIT Credit Airdrop: too early."
-        );
-        require(
-            claim_started == false,
-            "DBIT Credit Airdrop: already started."
-        );
-        token.setAirdroppedSupply(airdropSupply);
-        merkleRoot = _merkleRoot;
-        merkleRoot_set = true;
-        return true;
+    function verifySignature(uint256 quantity, bytes memory signature) internal view returns (address) {
+        return keccak256(abi.encodePacked(address(this), msg.sender, quantity))
+        .toEthSignedMessageHash()
+        .recover(signature);
     }
+
 
     function startClaim() public view returns (bool) {
         require(msg.sender == owner(), "DBIT Credit Airdrop: Dev only.");
