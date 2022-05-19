@@ -43,5 +43,7 @@ interface IDebondToken  {
         view
         returns (uint256);
 
+    function transfer(address _to ,  uint _amount) override  external returns(bool);
+
 
  }

@@ -61,8 +61,6 @@ imp: given that the core addresses themselves will be needing dbit / dgov addres
 
     constructor() ERC20Capped(10**18) ERC20("DGOV", "DGOV") {
         _maximumSupply = cap();
-        
-
     }
 
     function IsActive(bool status) public    returns(bool)
@@ -78,6 +76,7 @@ imp: given that the core addresses themselves will be needing dbit / dgov addres
     // set  locked supply balance for each account
     function LockedBalance(address _of)
         public
+
         returns(uint256)
     {
        
