@@ -2,8 +2,6 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-
-
 // SPDX-License-Identifier: apache 2.0
 /*
     Copyright 2020 Sigmoid Foundation <info@SGM.finance>
@@ -18,32 +16,36 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
     limitations under the License.
 */
 
-interface IDebondToken  {
-    function mintCollateralisedSupply(address _to, uint256 _amount) external ;
+interface IDebondToken {
+    function mintCollateralisedSupply(address _to, uint256 _amount) external;
 
-    function mintAllocatedSupply(address _to, uint256 _amount) external  ; 
+    function mintAllocatedSupply(address _to, uint256 _amount) external;
 
     function mintAirdroppedSupply(address _to, uint256 _amount) external;
-        
-    function setBankContract(address bank_addres)
-        external    
-        returns (bool);
-    function supplyCollateralised() external returns(uint256);
+
+
+    function supplyCollateralised() external returns (uint256);
+
+
+    function collateralisedSupplyBalance(address _from) external returns (uint256);
+    function airdroppedSupplyBalance(address _from) external returns (uint256);
+    function allocatedSupplyBalance(address _from) external returns (uint256);
+
+    
 
     function directTransfer(
         address _from,
         address _to,
         uint256 _amount
-    ) external  returns (bool);
-    function setAirdroppedSupply(uint256 new_supply) external returns(bool); 
+    ) external returns (bool);
 
+    function setAirdroppedSupply(uint256 new_supply) external returns (bool);
 
-    function totalSupply()
-        external
-        view
-        returns (uint256);
+    function totalSupply() external view returns (uint256);
 
-    function transfer(address _to ,  uint _amount) override  external returns(bool);
-
-
- }
+    function transfer(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) external returns (bool);
+}

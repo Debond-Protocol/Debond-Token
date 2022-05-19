@@ -22,13 +22,15 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract DGOV is ERC20Capped, Ownable, IdGOV, AccessControl {
+import "debond-governance/contracts/utils/GovernanceOwnable.sol";
+
+
+contract DGOV is ERC20Capped, Ownable, IdGOV, AccessControl , GovernanceOwnable  {
     uint256 public _maximumSupply;
     uint256  internal _collateralisedSupply; // this will be  call by bank contract
     uint256  internal  _allocatedSupply; // this corresponds to the tokens tallocated by governance , the functions to set this value will be called in proposal.
     uint256  internal _airdropedSupply; // set by the airdropedToken , decreases when people call mintAirdrop.
     uint256  internal _lockedSupply; // this will be storing total supply locked by hte airdrop
-    bool isActive;
 
 
 
@@ -43,8 +45,8 @@ contract DGOV is ERC20Capped, Ownable, IdGOV, AccessControl {
 
     // checks locked supply.
     mapping(address => uint256) public lockedBalance;
-    mapping(address => uint256)  internal _airdropedBalance;
-    mapping(address => uint256) internal _allocatedBalance;
+    mapping(address => uint256)  public _airdropedBalance;
+    mapping(address => uint256) public  _allocatedBalance;
 
     modifier onlyAirdropToken() {
         require(msg.sender == _airdropAddress, "access denied");
@@ -59,45 +61,31 @@ imp: given that the core addresses themselves will be needing dbit / dgov addres
         address _airdropAddress;
     */
 
-    constructor() ERC20Capped(10**18) ERC20("DGOV", "DGOV") {
+    constructor(address governanceAddress) ERC20Capped(10**18) ERC20("DGOV", "DGOV") GovernanceOwnable(governanceAddress) {
         _maximumSupply = cap();
     }
 
-    function IsActive(bool status) public    returns(bool)
-    {   require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
-        isActive = status;
-        return true;
-    }
 
     function totalSupply() public view override returns (uint256) {
         return _collateralisedSupply + _allocatedSupply + _airdropedSupply;
     }
 
     // set  locked supply balance for each account
-    function LockedBalance(address _of)
-        public
-
-        returns(uint256)
-    {
-       
-        //  lockedBalance[_of] = ((_collateralisedSupply * 1e18) / (_airdropedSupply * _airdropedSupply )/ 5e20);
-        
-        uint Balance =  (1-(20 * _collateralisedSupply  / _airdropedSupply)) * _airdropedBalance[_of];
-        uint256 result  = (Balance < 0 ? 0 : Balance);
-        return result ;
-    }
-
-    // gets the total lockedSupply  currently in circularion(TODO: check  the feasiblity).
-
+   
    
 
     // gets the amount of the lockedBalance for an given address
-    function getLockedBalance(address account) public view returns (uint256) {
-        return lockedBalance[account];
+    function LockedBalance(address account) public view returns (uint256 _lockedBalance) {
+         uint ratio = _collateralisedSupply/( 2e9 * _airdropedSupply );
+        if( 1e8 <= ratio ){
+            _lockedBalance = 0;
+        }
+
+         _lockedBalance =  (1e8 - ratio ) * _airdropedBalance[account] / 1e8;
     }
 
     // Check if supply is locked function, this will be called by the transfer  function
-    function _checkIfIsLockedSupply(address account, uint256 amountTransfer)
+    function _checkIfItsLockedSupply(address account, uint256 amountTransfer)
         internal
         returns (bool)
     {
@@ -120,6 +108,13 @@ imp: given that the core addresses themselves will be needing dbit / dgov addres
         return _collateralisedSupply;
     }
 
+
+    function transfer(address _from,address _to ,  uint _amount)    public  override(ERC20, IdGOV) returns(bool) {
+    require(_checkIfItsLockedSupply(msg.sender, _amount), "insufficient supply");
+     _transfer(msg.sender, _to, _amount);
+     return true;
+    }
+
     // We need a transfer and transfer from function to replace the standarded ERC 20 functions.
     // In our functions we will be verifying if the transfered ammount <= balance - locked supply
 
@@ -131,14 +126,13 @@ imp: given that the core addresses themselves will be needing dbit / dgov addres
     ) public returns (bool) {
         require(
             msg.sender == _exchangeAddress ||
-                msg.sender == _bankAddress ||
-                msg.sender == _governanceAddress
+                msg.sender == _bankAddress  , "not available"
         );
         require(
-            _checkIfIsLockedSupply(_from, _amount) == true,
-            "ERC20: can't transfer locked balance"
+            _checkIfItsLockedSupply(_from, _amount) == true,
+            "insufficient supply"
         );
-        _transfer(_from, _to, _amount);
+        transfer(_from, _to, _amount);
         return (true);
     }
 
@@ -168,26 +162,7 @@ imp: given that the core addresses themselves will be needing dbit / dgov addres
 
   
 
-    function setBankContract(address bank_address) public returns (bool) {
-        _bankAddress = bank_address;
-        return (true);
-    }
-
-    function setExchangeContract(address exchange_address)
-        public
-        returns (bool)
-    {
-        require(msg.sender == _governanceAddress);
-        _exchangeAddress = exchange_address;
-        return (true);
-    }
-
-    function setAirdropContract(address new_Airdrop) public returns (bool) {
-        require(msg.sender == _governanceAddress);
-        _airdropAddress = new_Airdrop;
-        return (true);
-    }
-
+    
     /** allows to set the airdrop supply after the initialisation just in case.
      */
     function setAirdroppedSupply(uint256 new_supply) public returns (bool) {

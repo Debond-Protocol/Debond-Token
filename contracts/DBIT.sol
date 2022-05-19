@@ -29,7 +29,7 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral , GovernanceOwn
     uint256 public _allocatedSupply;
     uint256 public _airdroppedSupply;
     
-    using DBIT for ERC20;
+   // using DBIT for ERC20;
     address bankAddress;
     address exchangeAddress;
     address airdropAddress;
@@ -50,11 +50,29 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral , GovernanceOwn
 
     }
 
+    function collateralisedSupplyBalance(address _from) external returns (uint256)
+    {   
+        return collateralisedBalance[_from];
+    }
+
+    function airdroppedSupplyBalance(address _from) external returns (uint256)
+    {   
+        return airdroppedBalance[_from];
+    }
+
+
+    function allocatedSupplyBalance(address _from) external returns (uint256)
+    {   
+        return allocatedBalance[_from];
+    }
+
+
+
     function totalSupply()
         public
         view
         virtual
-        override
+        override(ERC20,IDebondToken)
         returns (uint256)
     {
         return
@@ -71,6 +89,7 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral , GovernanceOwn
     function airdropedSupply() public view returns (uint256) {
         return _airdroppedSupply;
     }
+
 
     function supplyCollateralised()
         public
@@ -101,9 +120,10 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral , GovernanceOwn
     }
 
 
-    function transfer(address _to ,  uint _amount)    public  override returns(bool) {
+    function transfer(address _from , address _to ,  uint _amount)    public  override(ERC20 ,IDebondToken) returns(bool) {
     require(_checkIfItsLockedSupply(msg.sender, _amount), "insufficient supply");
      _transfer(msg.sender, _to, _amount);
+     return true;
 
     }
 
@@ -121,7 +141,7 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral , GovernanceOwn
 
         require(_checkIfItsLockedSupply(_from, _amount), "insufficient supply");
 
-        _transfer(_from, _to, _amount);
+        transfer(_from, _to, _amount);
         return (true);
     }
 
@@ -159,22 +179,11 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral , GovernanceOwn
     }
 
 
-    function setBankContract(address bank_address) public override returns (bool) {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
-        bankAddress = bank_address;
-        return (true);
+
+    function setAirdroppedSupply(uint256 new_supply) public returns(bool)
+    {   hasRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _airdroppedSupply = new_supply;
     }
-
-    function setExchangeContract(address exchange_address)
-        public
-        returns (bool)
-    {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
-        exchangeAddress = exchange_address;
-        return (true);
-    }
-
-
 
 
 }
