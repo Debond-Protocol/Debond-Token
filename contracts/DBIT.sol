@@ -174,7 +174,6 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral , GovernanceOwn
     {
         require(msg.sender == airdropAddress);
         _mint(_to, _amount);
-        _airdroppedSupply += _amount;
         airdroppedBalance[_to] += _amount;
     }
 
