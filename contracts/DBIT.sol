@@ -36,19 +36,20 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral , GovernanceOwn
 
     bool state;
 
-    // checks locked supply.
-    //@yu SOME VARIBLES IS NOT INTERNAL AND SOME IS
-    mapping(address => uint256) public collateralisedBalance;
-    mapping(address => uint256) public allocatedBalance;
-    mapping(address => uint256) public airdroppedBalance;
+    mapping(address => uint256) internal  collateralisedBalance;
+    mapping(address => uint256) internal  allocatedBalance;
+    mapping(address => uint256) internal   airdroppedBalance;
 
     /** currently setting only the main token parameters , and once the other contracts are deployed then use setContractAddress to set up these contracts.
+    
+    TODO:  add  the functions setting the address and parameters from the governance and proposal . 
      */
 
-    constructor(address _governanceAddress) ERC20("DBIT Token", "DBIT") GovernanceOwnable(_governanceAddress) {
-        
+    constructor(address _governanceAddress) ERC20("DBIT Token", "DBIT") GovernanceOwnable(_governanceAddress) {    }
 
-    }
+
+    // GETTER FUNCTIONS
+
 
     function collateralisedSupplyBalance(address _from) external returns (uint256)
     {   
@@ -94,7 +95,7 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral , GovernanceOwn
     function supplyCollateralised()
         public
         view
-        override(ICollateral, IDebondToken)
+        override
         returns (uint256)
     {
         return _collateralisedSupply;
@@ -120,34 +121,29 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral , GovernanceOwn
     }
 
 
-    function transfer(address _from , address _to ,  uint _amount)    public  override(ERC20 ,IDebondToken) returns(bool) {
+    function transfer(address _to ,  uint _amount)    public  override returns(bool) {
     require(_checkIfItsLockedSupply(msg.sender, _amount), "insufficient supply");
-     _transfer(msg.sender, _to, _amount);
+    approve(msg.sender, _amount);
+    _transfer(msg.sender, _to, _amount);
      return true;
 
     }
 
-
     // We need a transfer and transfer from function to replace the standarded ERC 20 functions.
     // In our functions we will be verifying if the transfered ammount <= balance - locked supply
-
     //bank transfer can only be called by bank contract or exchange contract, bank transfer don't need the approval of the sender.
     function directTransfer(
         address _from,
         address _to,
         uint256 _amount
-    ) public  override returns (bool) {
+    ) public   returns (bool) {
         require(msg.sender == exchangeAddress || msg.sender == bankAddress );
-
         require(_checkIfItsLockedSupply(_from, _amount), "insufficient supply");
-
-        transfer(_from, _to, _amount);
+        approve(_from,_amount);
+        transferFrom(_from, _to, _amount);
         return (true);
     }
-
-    /**
-     */
-    function mintCollateralisedSupply(address _to, uint256 _amount)
+  function mintCollateralisedSupply(address _to, uint256 _amount)
         public
         virtual
         override
@@ -170,10 +166,10 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral , GovernanceOwn
 
     function mintAirdroppedSupply(address _to, uint256 _amount)
         public
-        override
     {
         require(msg.sender == airdropAddress);
         _mint(_to, _amount);
+        _airdroppedSupply += _amount;
         airdroppedBalance[_to] += _amount;
     }
 
@@ -182,6 +178,7 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral , GovernanceOwn
     function setAirdroppedSupply(uint256 new_supply) public returns(bool)
     {   hasRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _airdroppedSupply = new_supply;
+        return true;
     }
 
 
