@@ -9,7 +9,6 @@ interface IdGOV {
     function LockedBalance(address _of) external view returns (uint256  _lockedBalance);
 
     function directTransfer(
-        address _from,
         address _to,
         uint256 _amount
     ) external returns (bool);
@@ -27,9 +26,4 @@ interface IdGOV {
      */
     function setAirdroppedSupply(uint256 new_supply) external returns (bool);
 
-    function transfer(
-        address _from,
-        address _to,
-        uint256 _amount
-    ) external returns (bool);
-}
+    }
