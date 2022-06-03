@@ -109,7 +109,7 @@ imp: given that the core addresses themselves will be needing dbit / dgov addres
     }
 
 
-    function transfer(address _from,address _to ,  uint _amount)    public  override(ERC20, IdGOV) returns(bool) {
+    function transfer(address _to ,  uint _amount)    public  override returns(bool) {
     require(_checkIfItsLockedSupply(msg.sender, _amount), "insufficient supply");
      _transfer(msg.sender, _to, _amount);
      return true;
@@ -120,7 +120,6 @@ imp: given that the core addresses themselves will be needing dbit / dgov addres
 
     //bank transfer can only be called by bank contract or exchange contract, bank transfer don't need the approval of the sender.
     function directTransfer(
-        address _from,
         address _to,
         uint256 _amount
     ) public returns (bool) {
@@ -129,10 +128,10 @@ imp: given that the core addresses themselves will be needing dbit / dgov addres
                 msg.sender == _bankAddress  , "not available"
         );
         require(
-            _checkIfItsLockedSupply(_from, _amount) == true,
+            _checkIfItsLockedSupply(msg.sender, _amount) == true,
             "insufficient supply"
         );
-        transfer(_from, _to, _amount);
+        transfer( _to, _amount);
         return (true);
     }
 
