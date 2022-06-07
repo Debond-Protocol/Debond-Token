@@ -62,8 +62,8 @@ imp: given that the core addresses themselves will be needing dbit / dgov addres
         address _airdropAddress;
     */
 
-    constructor(address governanceAddress) ERC20Capped(10**18) ERC20("DGOV", "DGOV") GovernanceOwnable(governanceAddress) {
-        _maximumSupply = cap();
+    constructor(address governanceAddress, uint maxSupply) ERC20Capped(maxSupply) ERC20("DGOV", "DGOV") GovernanceOwnable(governanceAddress) {
+        _maximumSupply = maxSupply;
     }
 
 
@@ -102,11 +102,10 @@ imp: given that the core addresses themselves will be needing dbit / dgov addres
     }
 
 
-    // gets the total balance for the ERC20 token .
-    function balance(address _of) external  view     returns(uint) {
-        return(_airdropedBalance[_of] + _allocatedBalance[_of]  -  this.lockedBalance(_of));
-
-
+    // gets the total ava .
+    function TotalBalance(address _of) external  view  override   returns(uint) {
+        // this will be subtraction of the balanced - unbalanced.
+        //return(_airdropedBalance[_of] + _allocatedBalance[_of]  -  this.lockedBalance(_of));
     }
 
     function AirdropedSupply() public view returns (uint256) {
@@ -180,17 +179,22 @@ imp: given that the core addresses themselves will be needing dbit / dgov addres
     }
 
     function AirdropedBalance( address _of ) external view returns (address)  {
-        return _airdropedBalance[_of];
-        
+        return _airdropedBalance[_of];   
     }
-
     /** allows to set the airdrop supply after the initialisation just in case.
      */
     function setAirdroppedSupply(uint256 new_supply) public returns (bool) {
         require(
-            hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
+            hasRole(DEFAULT_ADMIN_ROLE, msg.sender  ),
             "DGOV: ACCESS DENIED "
         );
         _airdropedSupply = new_supply;
     }
+    function setMaxSupply(uint max_supply) public onlyGov returns(bool) {
+         require(
+            hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
+            "DGOV: ACCESS DENIED "
+        );
+        _maximumSupply = max_supply;
+    } 
 }
