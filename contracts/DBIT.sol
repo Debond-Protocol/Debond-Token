@@ -51,23 +51,19 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral , GovernanceOwn
     // GETTER FUNCTIONS
 
 
-    function collateralisedSupplyBalance(address _from) external returns (uint256)
+    function collateralisedSupplyBalance(address _from) external view returns (uint256)
     {   
         return collateralisedBalance[_from];
     }
 
-    function airdroppedSupplyBalance(address _from) external returns (uint256)
+    function airdroppedSupplyBalance(address _from) external view returns (uint256)
     {   
         return airdroppedBalance[_from];
     }
-
-
-    function allocatedSupplyBalance(address _from) external returns (uint256)
+    function allocatedSupplyBalance(address _from) external view returns (uint256)
     {   
         return allocatedBalance[_from];
     }
-
-
 
     function totalSupply()
         public

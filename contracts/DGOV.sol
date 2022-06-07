@@ -47,6 +47,7 @@ contract DGOV is ERC20Capped, Ownable, IdGOV, AccessControl , GovernanceOwnable 
     mapping(address => uint256) public lockedBalance;
     mapping(address => uint256)  public _airdropedBalance;
     mapping(address => uint256) public  _allocatedBalance;
+    mapping (address => uint256) public _collateralisedBalance;
 
     modifier onlyAirdropToken() {
         require(msg.sender == _airdropAddress, "access denied");
@@ -100,6 +101,14 @@ imp: given that the core addresses themselves will be needing dbit / dgov addres
         return _allocatedSupply;
     }
 
+
+    // gets the total balance for the ERC20 token .
+    function balance(address _of) external  view     returns(uint) {
+        return(_airdropedBalance[_of] + _allocatedBalance[_of]  -  this.lockedBalance(_of));
+
+
+    }
+
     function AirdropedSupply() public view returns (uint256) {
         return _airdropedSupply;
     }
@@ -150,6 +159,7 @@ imp: given that the core addresses themselves will be needing dbit / dgov addres
     function mintCollateralisedSupply(address _to, uint256 _amount) external {
         require(msg.sender == _bankAddress);
         _mint(_to, _amount);
+
         _collateralisedSupply += _amount;
     }
 
@@ -160,8 +170,20 @@ imp: given that the core addresses themselves will be needing dbit / dgov addres
     }
 
   
+    function CollateralisedBalance(address _of) external view returns(address) {
+        return _collateralisedBalance[_of];
+    }
 
-    
+    function AllocatedBalance( address _of ) external view returns (address)  {
+        return allocatedBalance[_of];
+        
+    }
+
+    function AirdropedBalance( address _of ) external view returns (address)  {
+        return _airdropedBalance[_of];
+        
+    }
+
     /** allows to set the airdrop supply after the initialisation just in case.
      */
     function setAirdroppedSupply(uint256 new_supply) public returns (bool) {

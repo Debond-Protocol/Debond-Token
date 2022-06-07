@@ -1,6 +1,6 @@
 pragma solidity ^0.8.9;
 
-interface IdGOV {
+interface IdGOV  {
     function allocatedSupply() external view returns (uint256);
 
     function AirdropedSupply() external view returns (uint256);
@@ -21,9 +21,16 @@ interface IdGOV {
 
     
 
+
+
+    function balance(address _of) external  view     returns(uint)
+
     /**
     only set by airdropToken (which is further called by airdrop contract) in order to set airdrop token supply  
      */
     function setAirdroppedSupply(uint256 new_supply) external returns (bool);
+
+
+
 
     }
