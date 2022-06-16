@@ -1,6 +1,6 @@
 //
 pragma solidity ^0.8.0;
-import "../interfaces/IDebondToken.sol";
+import "../interfaces/IDBIT.sol";
 import "../interfaces/IDBITAirdrop.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -88,7 +88,10 @@ contract DBITAirdrop is IDBITAirdrop, Ownable {
         return true;
     }
 
-    function setAirdrop(bytes32 _merkleRoot, uint airdropSupply) public returns (bool) {
+    function setAirdrop(bytes32 _merkleRoot, uint256 airdropSupply)
+        public
+        returns (bool)
+    {
         require(
             msg.sender == owner(),
             "DBIT Credit Airdrop: core team can init."
@@ -109,7 +112,10 @@ contract DBITAirdrop is IDBITAirdrop, Ownable {
 
     function startClaim() public view returns (bool) {
         require(msg.sender == owner(), "DBIT Credit Airdrop: Dev only.");
-        require(block.timestamp >= claimDuration, "DBIT Credit Airdrop: too early.");
+        require(
+            block.timestamp >= claimDuration,
+            "DBIT Credit Airdrop: too early."
+        );
         require(
             claim_started == false,
             "DBIT Credit Airdrop: Claim already started."

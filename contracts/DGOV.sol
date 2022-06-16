@@ -15,39 +15,44 @@ pragma solidity ^0.8.0;
 */
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "./interfaces/IdGOV.sol";
+import "./interfaces/IDGOV.sol";
 import "debond-governance/contracts/utils/GovernanceOwnable.sol";
 
 contract DGOV is ERC20, IdGOV, GovernanceOwnable {
     uint256 internal _maximumSupply;
-    uint256 internal _maxAirdroppedSupply;
+    uint256 internal _maxAirdropSupply;
     uint256 internal _maxAllocationPercentage;
 
     uint256 internal _collateralisedSupply; // this will be  called by bank contract
     uint256 internal _allocatedSupply;
-    uint256 internal _airdroppedSupply;
+    uint256 internal _airdropSupply;
 
-    mapping(address => uint256) public _airdroppedBalance;
+    mapping(address => uint256) public _airdropBalance;
     mapping(address => uint256) public _allocatedBalance;
     mapping(address => uint256) public _collateralisedBalance;
 
     constructor(
         address governanceAddress,
         uint256 maxSupply,
-        uint256 maxAirdroppedSupply,
+        uint256 maxAirdropSupply,
         uint256 maxAllocpercentage
     ) ERC20("DGOV", "DGOV token") GovernanceOwnable(governanceAddress) {
         _maximumSupply = maxSupply;
-        _maxAirdroppedSupply = maxAirdroppedSupply;
+        _maxAirdropSupply = maxAirdropSupply;
         _maxAllocationPercentage = maxAllocpercentage; // out of 10k.
 
         _collateralisedSupply = 0;
         _allocatedSupply = 0;
-        _airdroppedSupply = 0;
+        _airdropSupply = 0;
     }
 
-    function totalSupply() public view override(ERC20, IdGOV) returns (uint256) {
-        return _collateralisedSupply + _allocatedSupply + _airdroppedSupply;
+    function totalSupply()
+        public
+        view
+        override(ERC20, IdGOV)
+        returns (uint256)
+    {
+        return _collateralisedSupply + _allocatedSupply + _airdropSupply;
     }
 
     function getMaxSupply() external view returns (uint256) {
@@ -60,16 +65,16 @@ contract DGOV is ERC20, IdGOV, GovernanceOwnable {
 
     function getMaxCollateralisedSupply() external view returns (uint256) {
         return (_maximumSupply -
-            (_maxAirdroppedSupply +
+            (_maxAirdropSupply +
                 ((_maximumSupply * _maxAllocationPercentage) / 10000)));
     }
 
-    function getTotalAirdroppedSupply() public view returns (uint256) {
-        return _airdroppedSupply;
+    function getTotalAirdropSupply() public view returns (uint256) {
+        return _airdropSupply;
     }
 
-    function getMaxAirdroppedSupply() public view returns (uint256) {
-        return _maxAirdroppedSupply;
+    function getMaxAirdropSupply() public view returns (uint256) {
+        return _maxAirdropSupply;
     }
 
     function getTotalAllocatedSupply() public view returns (uint256) {
@@ -81,7 +86,7 @@ contract DGOV is ERC20, IdGOV, GovernanceOwnable {
     }
 
     function getTotalBalance(address _of) external view returns (uint256) {
-        return (_airdroppedBalance[_of] +
+        return (_airdropBalance[_of] +
             _allocatedBalance[_of] +
             _collateralisedBalance[_of]);
     }
@@ -92,14 +97,14 @@ contract DGOV is ERC20, IdGOV, GovernanceOwnable {
         returns (uint256 _lockedBalance)
     {
         uint256 _maxUnlockable = (_collateralisedSupply * 5 * 100) / 100;
-        uint256 _currentAirdroppedSupply = _airdroppedSupply * 100;
+        uint256 _currentAirdropSupply = _airdropSupply * 100;
 
-        if (_currentAirdroppedSupply <= _maxUnlockable) {
+        if (_currentAirdropSupply <= _maxUnlockable) {
             _lockedBalance = 0;
         } else {
             _lockedBalance =
-                ((100 - ((_maxUnlockable * 100) / _currentAirdroppedSupply)) *
-                    _airdroppedBalance[account]) /
+                ((100 - ((_maxUnlockable * 100) / _currentAirdropSupply)) *
+                    _airdropBalance[account]) /
                 100;
         }
     }
@@ -144,19 +149,19 @@ contract DGOV is ERC20, IdGOV, GovernanceOwnable {
         return (true);
     }
 
-    // Must be sent from the airdropped contract address which is defined in the constructor
-    function mintAirdroppedSupply(address _to, uint256 _amount) external {
-        require(msg.sender == _airdroppedAddress, "denied");
+    // Must be sent from the airdrop contract address which is defined in the constructor
+    function mintAirdropSupply(address _to, uint256 _amount) external {
+        require(msg.sender == _airdropAddress, "denied");
         require(
-            _airdroppedSupply + _amount <= _maxAirdroppedSupply,
+            _airdropSupply + _amount <= _maxAirdropSupply,
             "exceeds the airdrop limit"
         );
 
-        _airdroppedSupply += _amount;
-        _airdroppedBalance[_to] += _amount;
+        _airdropSupply += _amount;
+        _airdropBalance[_to] += _amount;
         _mint(_to, _amount);
 
-        // as the airdroppeded supply is minted it will be seperate from the each investors lockedBalance.
+        // as the airdroped supply is minted it will be seperate from the each investors lockedBalance.
     }
 
     /** 
@@ -167,7 +172,7 @@ contract DGOV is ERC20, IdGOV, GovernanceOwnable {
         require(
             _amount <=
                 _maximumSupply -
-                    (_maxAirdroppedSupply +
+                    (_maxAirdropSupply +
                         ((_maximumSupply * _maxAllocationPercentage) / 10000) +
                         _collateralisedSupply),
             "exceeds limit"
@@ -180,7 +185,7 @@ contract DGOV is ERC20, IdGOV, GovernanceOwnable {
     }
 
     function mintAllocatedSupply(address _to, uint256 _amount) external {
-        require(msg.sender == _airdroppedAddress);
+        require(msg.sender == _airdropAddress);
         require(
             _amount <
                 (_maximumSupply * _maxAllocationPercentage) /
@@ -205,8 +210,8 @@ contract DGOV is ERC20, IdGOV, GovernanceOwnable {
         return _allocatedBalance[_of];
     }
 
-    function getAirdroppedBalance(address _of) external view returns (uint256) {
-        return _airdroppedBalance[_of];
+    function getAirdropBalance(address _of) external view returns (uint256) {
+        return _airdropBalance[_of];
     }
 
     function setMaxSupply(uint256 max_supply) public returns (bool) {
@@ -215,9 +220,9 @@ contract DGOV is ERC20, IdGOV, GovernanceOwnable {
         return true;
     }
 
-    function setMaxAirdroppedSupply(uint256 new_supply) public returns (bool) {
-        require(msg.sender == _debondOperator, "denied:setAirdroppedSupply");
-        _maxAirdroppedSupply = new_supply;
+    function setMaxAirdropSupply(uint256 new_supply) public returns (bool) {
+        require(msg.sender == _debondOperator, "denied:setAirdropSupply");
+        _maxAirdropSupply = new_supply;
         return true;
     }
 

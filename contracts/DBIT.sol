@@ -2,7 +2,7 @@ pragma solidity ^0.8.0;
 
 // SPDX-License-Identifier: apache 2.0
 /*
-    Copyright 2020 Sigmoid Foundation <info@SGM.finance>
+    Copyright 2021 Debond Protocol <info@debond.org>
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
@@ -13,171 +13,234 @@ pragma solidity ^0.8.0;
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "./interfaces/IDebondToken.sol";
-import "./interfaces/ICollateral.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-
-import "@openzeppelin/contracts/access/AccessControl.sol";
-
+import "./interfaces/IDBIT.sol";
 import "debond-governance/contracts/utils/GovernanceOwnable.sol";
 
-contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral , GovernanceOwnable {
-    // this minter role will be for airdropToken , bank or the governance Contract
-    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-    uint256 public _collateralisedSupply;
-    uint256 public _allocatedSupply;
-    uint256 public _airdroppedSupply;
-    
-   // using DBIT for ERC20;
-    address bankAddress;
-    address exchangeAddress;
-    address airdropAddress;
+contract DBIT is ERC20, IDBIT, GovernanceOwnable {
+    //uint256 internal _maximumSupply;
+    uint256 internal _maxAirdropSupply;
+    uint256 internal _maxAllocationPercentage;
 
-    bool state;
+    uint256 internal _collateralisedSupply; // this will be  called by bank contract
+    uint256 internal _allocatedSupply;
+    uint256 internal _airdropSupply;
 
-    mapping(address => uint256) internal  collateralisedBalance;
-    mapping(address => uint256) internal  allocatedBalance;
-    mapping(address => uint256) internal   airdroppedBalance;
+    mapping(address => uint256) public _airdropBalance;
+    mapping(address => uint256) public _allocatedBalance;
+    mapping(address => uint256) public _collateralisedBalance;
 
-    /** currently setting only the main token parameters , and once the other contracts are deployed then use setContractAddress to set up these contracts.
-    
-    TODO:  add  the functions setting the address and parameters from the governance and proposal . 
-     */
+    constructor(
+        address governanceAddress,
+        //uint256 maxSupply,
+        uint256 maxAirdropSupply,
+        uint256 maxAllocpercentage
+    ) ERC20("DBIT", "DBIT token") GovernanceOwnable(governanceAddress) {
+        //_maximumSupply = maxSupply;
+        _maxAirdropSupply = maxAirdropSupply;
+        _maxAllocationPercentage = maxAllocpercentage; // out of 10k.
 
-    constructor(address _governanceAddress) ERC20("DBIT Token", "DBIT") GovernanceOwnable(_governanceAddress) {  
-        //mint()
-      }
-
-
-    // GETTER FUNCTIONS
-
-
-    function collateralisedSupplyBalance(address _from) external view returns (uint256)
-    {   
-        return collateralisedBalance[_from];
-    }
-
-    function airdroppedSupplyBalance(address _from) external view returns (uint256)
-    {   
-        return airdroppedBalance[_from];
-    }
-    function allocatedSupplyBalance(address _from) external view returns (uint256)
-    {   
-        return allocatedBalance[_from];
+        _collateralisedSupply = 0;
+        _allocatedSupply = 0;
+        _airdropSupply = 0;
     }
 
     function totalSupply()
         public
         view
-        virtual
-        override(ERC20,IDebondToken)
+        override(ERC20, IDBIT)
         returns (uint256)
     {
-        return
-            _allocatedSupply +
-            _collateralisedSupply +
-            _airdroppedSupply;
+        return _collateralisedSupply + _allocatedSupply + _airdropSupply;
     }
 
-    function allocatedSupply() public view returns (uint256) {
-        return _allocatedSupply;
+    /*
+    function getMaxSupply() external view returns (uint256) {
+        return _maximumSupply;
     }
-
-    // just an contract for formality given that current version doesnt have to be minted for DBIT.
-    function airdropedSupply() public view returns (uint256) {
-        return _airdroppedSupply;
-    }
-
-
-    function supplyCollateralised()
-        public
-        view
-        override
-        returns (uint256)
-    {
+*/
+    function getTotalCollateralisedSupply() external view returns (uint256) {
         return _collateralisedSupply;
     }
 
-    
-    function LockedBalance(address account) public view returns (uint256 _lockedBalance) {
-        uint ratio = _collateralisedSupply/( 2e9 * _airdroppedSupply );
-        if( 1e8 <= ratio ){
-            _lockedBalance = 0;
-        }
-
-         _lockedBalance =  (1e8 - ratio ) * airdroppedBalance[account] / 1e8;
+    /*
+    function getMaxCollateralisedSupply() external view returns (uint256) {
+        return (_maximumSupply -
+            (_maxAirdropSupply +
+                ((_maximumSupply * _maxAllocationPercentage) / 10000)));
+    }
+*/
+    function getTotalAirdropSupply() public view returns (uint256) {
+        return _airdropSupply;
     }
 
-    function _checkIfItsLockedSupply(address from, uint256 amountToTransfer)
+    function getMaxAirdropSupply() public view returns (uint256) {
+        return _maxAirdropSupply;
+    }
+
+    function getTotalAllocatedSupply() public view returns (uint256) {
+        return _allocatedSupply;
+    }
+
+    function getMaxAllocatedPercentage() public view returns (uint256) {
+        return _maxAllocationPercentage;
+    }
+
+    function getTotalBalance(address _of) external view returns (uint256) {
+        return (_airdropBalance[_of] +
+            _allocatedBalance[_of] +
+            _collateralisedBalance[_of]);
+    }
+
+    function getLockedBalance(address account)
+        public
+        view
+        returns (uint256 _lockedBalance)
+    {
+        uint256 _maxUnlockable = (_collateralisedSupply * 5 * 100) / 100;
+        uint256 _currentAirdropSupply = _airdropSupply * 100;
+
+        if (_currentAirdropSupply <= _maxUnlockable) {
+            _lockedBalance = 0;
+        } else {
+            _lockedBalance =
+                ((100 - ((_maxUnlockable * 100) / _currentAirdropSupply)) *
+                    _airdropBalance[account]) /
+                100;
+        }
+    }
+
+    // Check if supply is locked function, this will be called by the transfer  function
+    function _checkIfLockedPart(address account, uint256 amountTransfer)
         internal
         view
         returns (bool)
     {
-        return ((balanceOf(from) - this.LockedBalance(from)) >=
-            amountToTransfer);
+        return
+            (balanceOf(account) - getLockedBalance(account)) >= amountTransfer;
     }
 
-
-    function transfer(address _to ,  uint _amount)    public  override(ERC20) returns(bool) {
-    require(_checkIfItsLockedSupply(msg.sender, _amount), "insufficient supply");
-    approve(msg.sender, _amount);
-    _transfer(msg.sender, _to, _amount);
-     return true;
-
+    function transfer(address _to, uint256 _amount)
+        public
+        override(ERC20, IDBIT)
+        returns (bool)
+    {
+        require(_checkIfLockedPart(msg.sender, _amount), "insufficient supply");
+        _transfer(msg.sender, _to, _amount);
+        return true;
     }
 
     // We need a transfer and transfer from function to replace the standarded ERC 20 functions.
     // In our functions we will be verifying if the transfered ammount <= balance - locked supply
-    //bank transfer can only be called by bank contract or exchange contract, bank transfer don't need the approval of the sender.
-    function directTransfer(
-        address _from,
-        address _to,
-        uint256 _amount
-    ) public   returns (bool) {
-        require(msg.sender == exchangeAddress || msg.sender == bankAddress );
-        require(_checkIfItsLockedSupply(_from, _amount), "insufficient supply");
-        approve(_from,_amount);
-        transferFrom(_from, _to, _amount);
+
+    //direct transfer can only be called by bank contract or exchange contract, direct transfer don't need the approval of the sender.
+    function directTransfer(address _to, uint256 _amount)
+        public
+        returns (bool)
+    {
+        require(
+            msg.sender == _exchangeAddress || msg.sender == _bankAddress,
+            "not available"
+        );
+        require(
+            _checkIfLockedPart(msg.sender, _amount) == true,
+            "insufficient supply"
+        );
+        transfer(_to, _amount);
         return (true);
     }
-  function mintCollateralisedSupply(address _to, uint256 _amount)
-        public
-        virtual
-        override
-    {
-        require(msg.sender == bankAddress);
+
+    // Must be sent from the airdrop contract address which is defined in the constructor
+    function mintAirdropSupply(address _to, uint256 _amount) external {
+        require(msg.sender == _airdropAddress, "denied");
+        require(
+            _airdropSupply + _amount <= _maxAirdropSupply,
+            "exceeds the airdrop limit"
+        );
+
+        _airdropSupply += _amount;
+        _airdropBalance[_to] += _amount;
         _mint(_to, _amount);
+
+        // as the airdroped supply is minted it will be seperate from the each investors lockedBalance.
+    }
+
+    /** 
+    minting supply during the bonds issuance.
+     */
+    function mintCollateralisedSupply(address _to, uint256 _amount) external {
+        require(msg.sender == _bankAddress);
+        /*       
+        require(
+            _amount <=
+                _maximumSupply -
+                    (_maxAirdropSupply +
+                        ((_maximumSupply * _maxAllocationPercentage) / 10000) +
+                        _collateralisedSupply),
+            "exceeds limit"
+        );
+*/
         _collateralisedSupply += _amount;
-        collateralisedBalance[_to] += _amount;
+        _collateralisedBalance[_to] += _amount;
+
+        _mint(_to, _amount);
     }
 
-    function mintAllocatedSupply(address _to, uint256 _amount)
-        public
-        override
-    {
-        require(msg.sender == governanceAddress);
-        _mint(_to, _amount);
+    function mintAllocatedSupply(address _to, uint256 _amount) external {
+        require(msg.sender == _airdropAddress);
+        /*        
+        require(
+            _amount <
+                (_maximumSupply * _maxAllocationPercentage) /
+                    10000 -
+                    _allocatedSupply,
+            "limit exceeds"
+        );
+*/
         _allocatedSupply += _amount;
-        allocatedBalance[_to] += _amount;
-    }
-
-    function mintAirdroppedSupply(address _to, uint256 _amount)
-        public
-    {
-        require(msg.sender == airdropAddress);
+        _allocatedBalance[_to] += _amount;
         _mint(_to, _amount);
-        _airdroppedSupply += _amount;
-        airdroppedBalance[_to] += _amount;
     }
 
+    function getCollateralisedBalance(address _of)
+        external
+        view
+        returns (uint256)
+    {
+        return _collateralisedBalance[_of];
+    }
 
+    function getAllocatedBalance(address _of) external view returns (uint256) {
+        return _allocatedBalance[_of];
+    }
 
-    function setAirdroppedSupply(uint256 new_supply) public returns(bool)
-    {   hasRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _airdroppedSupply = new_supply;
+    function getAirdropBalance(address _of) external view returns (uint256) {
+        return _airdropBalance[_of];
+    }
+
+    /*
+    function setMaxSupply(uint256 max_supply) public returns (bool) {
+        require(msg.sender == _debondOperator, "denied:setMaxSupply");
+        _maximumSupply = max_supply;
+        return true;
+    }
+*/
+    function setMaxAirdropSupply(uint256 new_supply) public returns (bool) {
+        require(msg.sender == _debondOperator, "denied:setAirdropSupply");
+        _maxAirdropSupply = new_supply;
         return true;
     }
 
-
+    function setMaxAllocationPercentage(uint256 newPercentage)
+        public
+        returns (bool)
+    {
+        require(
+            msg.sender == _debondOperator,
+            "denied access:allocationPercentage"
+        );
+        _maxAllocationPercentage = newPercentage;
+        return true;
+    }
 }

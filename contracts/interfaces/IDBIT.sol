@@ -13,22 +13,22 @@ pragma solidity ^0.8.9;
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-interface IdGOV {
+interface IDBIT {
     function totalSupply() external view returns (uint256);
 
-    function getMaxSupply() external view returns (uint256);
+    //function getMaxSupply() external view returns (uint256);
 
     function getTotalCollateralisedSupply() external view returns (uint256);
 
-    function getMaxCollateralisedSupply() external view returns (uint256);
+    //function getMaxCollateralisedSupply() external view returns (uint256);
 
-    function getTotalAirdroppedSupply() external view returns (uint256);
+    function getTotalAirdropSupply() external view returns (uint256);
 
-    function getMaxAirdroppedSupply() external view returns (uint256);
+    function getMaxAirdropSupply() external view returns (uint256);
 
     function getTotalAllocatedSupply() external view returns (uint256);
 
-    function getMaxAllocatedSupply() external view returns (uint256);
+    function getMaxAllocatedPercentage() external view returns (uint256);
 
     function getTotalBalance(address _of) external view returns (uint256);
 
@@ -43,7 +43,7 @@ interface IdGOV {
         external
         returns (bool);
 
-    function mintAirdroppedSupply(address _to, uint256 _amount) external;
+    function mintAirdropSupply(address _to, uint256 _amount) external;
 
     function mintCollateralisedSupply(address _to, uint256 _amount) external;
 
@@ -56,11 +56,11 @@ interface IdGOV {
 
     function getAllocatedBalance(address _of) external view returns (uint256);
 
-    function getAirdroppedBalance(address _of) external view returns (uint256);
+    function getAirdropBalance(address _of) external view returns (uint256);
 
-    function setMaxSupply(uint256 max_supply) external returns (bool);
+    //function setMaxSupply(uint256 max_supply) external returns (bool);
 
-    function setMaxAirdroppedSupply(uint256 new_supply) external returns (bool);
+    function setMaxAirdropSupply(uint256 new_supply) external returns (bool);
 
     function setMaxAllocationPercentage(uint256 newPercentage)
         external
