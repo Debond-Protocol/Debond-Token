@@ -2,7 +2,7 @@ pragma solidity ^0.8.0;
 
 // SPDX-License-Identifier: apache 2.0
 /*
-    Copyright 2020 Sigmoid Foundation <info@SGM.finance>
+    Copyright 2021 Debond Protocol <info@debond.org>
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
@@ -14,187 +14,222 @@ pragma solidity ^0.8.0;
     limitations under the License.
 */
 
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./interfaces/IdGOV.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-
-import "@openzeppelin/contracts/access/AccessControl.sol";
-
 import "debond-governance/contracts/utils/GovernanceOwnable.sol";
 
+contract DGOV is ERC20, IdGOV, GovernanceOwnable {
+    uint256 internal _maximumSupply;
+    uint256 internal _maxAirdroppedSupply;
+    uint256 internal _maxAllocationPercentage;
 
-contract DGOV is ERC20Capped, Ownable, IdGOV, AccessControl , GovernanceOwnable  {
-    uint256 public _maximumSupply;
-    uint256  internal _collateralisedSupply; // this will be  call by bank contract
-    uint256  internal  _allocatedSupply; // this corresponds to the tokens tallocated by governance , the functions to set this value will be called in proposal.
-    uint256  internal _airdropedSupply; // set by the airdropedToken , decreases when people call mintAirdrop.
-    uint256  internal _lockedSupply; // this will be storing total supply locked by hte airdrop
+    uint256 internal _collateralisedSupply; // this will be  called by bank contract
+    uint256 internal _allocatedSupply;
+    uint256 internal _airdroppedSupply;
 
+    mapping(address => uint256) public _airdroppedBalance;
+    mapping(address => uint256) public _allocatedBalance;
+    mapping(address => uint256) public _collateralisedBalance;
 
-
-    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-
-    using SafeMath for uint256;
-
-    address _bankAddress;
-    address _governanceAddress;
-    address _exchangeAddress;
-    address _airdropAddress; // address of DBITCreditAirdrop.
-
-    // checks locked supply.
-    mapping(address => uint256) public lockedBalance;
-    mapping(address => uint256)  public _airdropedBalance;
-    mapping(address => uint256) public  _allocatedBalance;
-    mapping (address => uint256) public _collateralisedBalance;
-
-    modifier onlyAirdropToken() {
-        require(msg.sender == _airdropAddress, "access denied");
-        _;
-    }
-
-    /**
-imp: given that the core addresses themselves will be needing dbit / dgov addresses ,we will set them init 0 and then define seperately
-        address bankAddress,
+    constructor(
         address governanceAddress,
-        address exchangeAddress,
-        address _airdropAddress;
-    */
-
-    constructor(address governanceAddress, uint maxSupply) ERC20Capped(maxSupply) ERC20("DGOV", "DGOV") GovernanceOwnable(governanceAddress) {
+        uint256 maxSupply,
+        uint256 maxAirdroppedSupply,
+        uint256 maxAllocpercentage
+    ) ERC20("DGOV", "DGOV token") GovernanceOwnable(governanceAddress) {
         _maximumSupply = maxSupply;
+        _maxAirdroppedSupply = maxAirdroppedSupply;
+        _maxAllocationPercentage = maxAllocpercentage; // out of 10k.
+
+        _collateralisedSupply = 0;
+        _allocatedSupply = 0;
+        _airdroppedSupply = 0;
     }
 
-
-    function totalSupply() public view override returns (uint256) {
-        return _collateralisedSupply + _allocatedSupply + _airdropedSupply;
+    function totalSupply() public view override(ERC20, IdGOV) returns (uint256) {
+        return _collateralisedSupply + _allocatedSupply + _airdroppedSupply;
     }
 
-    // set  locked supply balance for each account
-   
-   
-
-    // gets the amount of the lockedBalance for an given address
-    function LockedBalance(address account) public view returns (uint256 _lockedBalance) {
-         uint ratio = _collateralisedSupply/( 2e9 * _airdropedSupply );
-        if( 1e8 <= ratio ){
-            _lockedBalance = 0;
-        }
-
-         _lockedBalance =  (1e8 - ratio ) * _airdropedBalance[account] / 1e8;
+    function getMaxSupply() external view returns (uint256) {
+        return _maximumSupply;
     }
 
-    // Check if supply is locked function, this will be called by the transfer  function
-    function _checkIfItsLockedSupply(address account, uint256 amountTransfer)
-        internal
-        returns (bool)
-    {
-        return
-            (balanceOf(account) - this.LockedBalance(account)) >=
-            amountTransfer;
-    }
-
-    // read functions get the according amount of the supply.
-
-    function allocatedSupply() public view returns (uint256) {
-        return _allocatedSupply;
-    }
-
-
-    // gets the total ava .
-    function TotalBalance(address _of) external  view  override   returns(uint) {
-        // this will be subtraction of the balanced - unbalanced.
-        //return(_airdropedBalance[_of] + _allocatedBalance[_of]  -  this.lockedBalance(_of));
-    }
-
-    function AirdropedSupply() public view returns (uint256) {
-        return _airdropedSupply;
-    }
-
-    function supplyCollateralised() external view returns (uint256) {
+    function getTotalCollateralisedSupply() external view returns (uint256) {
         return _collateralisedSupply;
     }
 
+    function getMaxCollateralisedSupply() external view returns (uint256) {
+        return (_maximumSupply -
+            (_maxAirdroppedSupply +
+                ((_maximumSupply * _maxAllocationPercentage) / 10000)));
+    }
 
-    function transfer(address _to ,  uint _amount)    public  override returns(bool) {
-    require(_checkIfItsLockedSupply(msg.sender, _amount), "insufficient supply");
-     _transfer(msg.sender, _to, _amount);
-     return true;
+    function getTotalAirdroppedSupply() public view returns (uint256) {
+        return _airdroppedSupply;
+    }
+
+    function getMaxAirdroppedSupply() public view returns (uint256) {
+        return _maxAirdroppedSupply;
+    }
+
+    function getTotalAllocatedSupply() public view returns (uint256) {
+        return _allocatedSupply;
+    }
+
+    function getMaxAllocatedSupply() public view returns (uint256) {
+        return (_maximumSupply * _maxAllocationPercentage) / 10000;
+    }
+
+    function getTotalBalance(address _of) external view returns (uint256) {
+        return (_airdroppedBalance[_of] +
+            _allocatedBalance[_of] +
+            _collateralisedBalance[_of]);
+    }
+
+    function getLockedBalance(address account)
+        public
+        view
+        returns (uint256 _lockedBalance)
+    {
+        uint256 _maxUnlockable = (_collateralisedSupply * 5 * 100) / 100;
+        uint256 _currentAirdroppedSupply = _airdroppedSupply * 100;
+
+        if (_currentAirdroppedSupply <= _maxUnlockable) {
+            _lockedBalance = 0;
+        } else {
+            _lockedBalance =
+                ((100 - ((_maxUnlockable * 100) / _currentAirdroppedSupply)) *
+                    _airdroppedBalance[account]) /
+                100;
+        }
+    }
+
+    // Check if supply is locked function, this will be called by the transfer  function
+    function _checkIfLockedPart(address account, uint256 amountTransfer)
+        internal
+        view
+        returns (bool)
+    {
+        return
+            (balanceOf(account) - getLockedBalance(account)) >= amountTransfer;
+    }
+
+    function transfer(address _to, uint256 _amount)
+        public
+        override(ERC20, IdGOV)
+        returns (bool)
+    {
+        require(_checkIfLockedPart(msg.sender, _amount), "insufficient supply");
+        _transfer(msg.sender, _to, _amount);
+        return true;
     }
 
     // We need a transfer and transfer from function to replace the standarded ERC 20 functions.
     // In our functions we will be verifying if the transfered ammount <= balance - locked supply
 
     //bank transfer can only be called by bank contract or exchange contract, bank transfer don't need the approval of the sender.
-    function directTransfer(
-        address _to,
-        uint256 _amount
-    ) public returns (bool) {
+    function directTransfer(address _to, uint256 _amount)
+        public
+        returns (bool)
+    {
         require(
-            msg.sender == _exchangeAddress ||
-                msg.sender == _bankAddress  , "not available"
+            msg.sender == _exchangeAddress || msg.sender == _bankAddress,
+            "not available"
         );
         require(
-            _checkIfItsLockedSupply(msg.sender, _amount) == true,
+            _checkIfLockedPart(msg.sender, _amount) == true,
             "insufficient supply"
         );
-        transfer( _to, _amount);
+        transfer(_to, _amount);
         return (true);
     }
 
-    // Must be sent from the airdrop contract address which is defined in the constructor
-    function mintAirdropedSupply(address _to, uint256 _amount) external {
-        require(msg.sender == _airdropAddress);
+    // Must be sent from the airdropped contract address which is defined in the constructor
+    function mintAirdroppedSupply(address _to, uint256 _amount) external {
+        require(msg.sender == _airdroppedAddress, "denied");
+        require(
+            _airdroppedSupply + _amount <= _maxAirdroppedSupply,
+            "exceeds the airdrop limit"
+        );
+
+        _airdroppedSupply += _amount;
+        _airdroppedBalance[_to] += _amount;
         _mint(_to, _amount);
 
-        _airdropedSupply -= _amount;
-        // as the airdroped supply is minted it will be seperate from the each investors lockedBalance.
-        _airdropedBalance[_to] += _amount;
+        // as the airdroppeded supply is minted it will be seperate from the each investors lockedBalance.
     }
 
-    /**
+    /** 
+    minting supply during the bonds issuance.
      */
     function mintCollateralisedSupply(address _to, uint256 _amount) external {
         require(msg.sender == _bankAddress);
-        _mint(_to, _amount);
+        require(
+            _amount <=
+                _maximumSupply -
+                    (_maxAirdroppedSupply +
+                        ((_maximumSupply * _maxAllocationPercentage) / 10000) +
+                        _collateralisedSupply),
+            "exceeds limit"
+        );
 
         _collateralisedSupply += _amount;
+        _collateralisedBalance[_to] += _amount;
+
+        _mint(_to, _amount);
     }
 
     function mintAllocatedSupply(address _to, uint256 _amount) external {
-        require(msg.sender == _airdropAddress);
-        _mint(_to, _amount);
+        require(msg.sender == _airdroppedAddress);
+        require(
+            _amount <
+                (_maximumSupply * _maxAllocationPercentage) /
+                    10000 -
+                    _allocatedSupply,
+            "limit exceeds"
+        );
         _allocatedSupply += _amount;
+        _allocatedBalance[_to] += _amount;
+        _mint(_to, _amount);
     }
 
-  
-    function CollateralisedBalance(address _of) external view returns(address) {
+    function getCollateralisedBalance(address _of)
+        external
+        view
+        returns (uint256)
+    {
         return _collateralisedBalance[_of];
     }
 
-    function AllocatedBalance( address _of ) external view returns (address)  {
-        return allocatedBalance[_of];
-        
+    function getAllocatedBalance(address _of) external view returns (uint256) {
+        return _allocatedBalance[_of];
     }
 
-    function AirdropedBalance( address _of ) external view returns (address)  {
-        return _airdropedBalance[_of];   
+    function getAirdroppedBalance(address _of) external view returns (uint256) {
+        return _airdroppedBalance[_of];
     }
-    /** allows to set the airdrop supply after the initialisation just in case.
-     */
-    function setAirdroppedSupply(uint256 new_supply) public returns (bool) {
-        require(
-            hasRole(DEFAULT_ADMIN_ROLE, msg.sender  ),
-            "DGOV: ACCESS DENIED "
-        );
-        _airdropedSupply = new_supply;
-    }
-    function setMaxSupply(uint max_supply) public onlyGov returns(bool) {
-         require(
-            hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
-            "DGOV: ACCESS DENIED "
-        );
+
+    function setMaxSupply(uint256 max_supply) public returns (bool) {
+        require(msg.sender == _debondOperator, "denied:setMaxSupply");
         _maximumSupply = max_supply;
-    } 
+        return true;
+    }
+
+    function setMaxAirdroppedSupply(uint256 new_supply) public returns (bool) {
+        require(msg.sender == _debondOperator, "denied:setAirdroppedSupply");
+        _maxAirdroppedSupply = new_supply;
+        return true;
+    }
+
+    function setMaxAllocationPercentage(uint256 newPercentage)
+        public
+        returns (bool)
+    {
+        require(
+            msg.sender == _debondOperator,
+            "denied access:allocationPercentage"
+        );
+        _maxAllocationPercentage = newPercentage;
+        return true;
+    }
 }

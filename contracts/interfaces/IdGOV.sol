@@ -1,36 +1,68 @@
 pragma solidity ^0.8.9;
 
-interface IdGOV  {
-    function allocatedSupply() external view returns (uint256);
+// SPDX-License-Identifier: apache 2.0
+/*
+    Copyright 2021 Debond Protocol <info@debond.org>
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
+interface IdGOV {
+    function totalSupply() external view returns (uint256);
 
-    function AirdropedSupply() external view returns (uint256);
+    function getMaxSupply() external view returns (uint256);
 
-    /**getting locked balance for the given address */
-    function LockedBalance(address _of) external view returns (uint256  _lockedBalance);
+    function getTotalCollateralisedSupply() external view returns (uint256);
 
-    function directTransfer(
-        address _to,
-        uint256 _amount
-    ) external returns (bool);
+    function getMaxCollateralisedSupply() external view returns (uint256);
 
-    function mintAirdropedSupply(address _to, uint256 _amount) external;
+    function getTotalAirdroppedSupply() external view returns (uint256);
+
+    function getMaxAirdroppedSupply() external view returns (uint256);
+
+    function getTotalAllocatedSupply() external view returns (uint256);
+
+    function getMaxAllocatedSupply() external view returns (uint256);
+
+    function getTotalBalance(address _of) external view returns (uint256);
+
+    function getLockedBalance(address account)
+        external
+        view
+        returns (uint256 _lockedBalance);
+
+    function transfer(address _to, uint256 _amount) external returns (bool);
+
+    function directTransfer(address _to, uint256 _amount)
+        external
+        returns (bool);
+
+    function mintAirdroppedSupply(address _to, uint256 _amount) external;
 
     function mintCollateralisedSupply(address _to, uint256 _amount) external;
 
     function mintAllocatedSupply(address _to, uint256 _amount) external;
 
-    
+    function getCollateralisedBalance(address _of)
+        external
+        view
+        returns (uint256);
 
+    function getAllocatedBalance(address _of) external view returns (uint256);
 
+    function getAirdroppedBalance(address _of) external view returns (uint256);
 
-    function balance(address _of) external  view     returns(uint)
+    function setMaxSupply(uint256 max_supply) external returns (bool);
 
-    /**
-    only set by airdropToken (which is further called by airdrop contract) in order to set airdrop token supply  
-     */
-    function setAirdroppedSupply(uint256 new_supply) external returns (bool);
+    function setMaxAirdroppedSupply(uint256 new_supply) external returns (bool);
 
-
-
-
-    }
+    function setMaxAllocationPercentage(uint256 newPercentage)
+        external
+        returns (bool);
+}

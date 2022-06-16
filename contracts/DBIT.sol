@@ -45,7 +45,9 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral , GovernanceOwn
     TODO:  add  the functions setting the address and parameters from the governance and proposal . 
      */
 
-    constructor(address _governanceAddress) ERC20("DBIT Token", "DBIT") GovernanceOwnable(_governanceAddress) {    }
+    constructor(address _governanceAddress) ERC20("DBIT Token", "DBIT") GovernanceOwnable(_governanceAddress) {  
+        //mint()
+      }
 
 
     // GETTER FUNCTIONS
@@ -117,7 +119,7 @@ contract DBIT is ERC20, IDebondToken, AccessControl, ICollateral , GovernanceOwn
     }
 
 
-    function transfer(address _to ,  uint _amount)    public  override returns(bool) {
+    function transfer(address _to ,  uint _amount)    public  override(ERC20) returns(bool) {
     require(_checkIfItsLockedSupply(msg.sender, _amount), "insufficient supply");
     approve(msg.sender, _amount);
     _transfer(msg.sender, _to, _amount);
