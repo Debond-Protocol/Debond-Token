@@ -18,7 +18,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./interfaces/IDGOV.sol";
 import "debond-governance/contracts/utils/GovernanceOwnable.sol";
 
-contract DGOV is ERC20, IdGOV, GovernanceOwnable {
+contract DGOV is ERC20, IDGOV, GovernanceOwnable {
     uint256 internal _maximumSupply;
     uint256 internal _maxAirdropSupply;
     uint256 internal _maxAllocationPercentage;
@@ -49,7 +49,7 @@ contract DGOV is ERC20, IdGOV, GovernanceOwnable {
     function totalSupply()
         public
         view
-        override(ERC20, IdGOV)
+        override(ERC20, IDGOV)
         returns (uint256)
     {
         return _collateralisedSupply + _allocatedSupply + _airdropSupply;
@@ -121,7 +121,7 @@ contract DGOV is ERC20, IdGOV, GovernanceOwnable {
 
     function transfer(address _to, uint256 _amount)
         public
-        override(ERC20, IdGOV)
+        override(ERC20, IDGOV)
         returns (bool)
     {
         require(_checkIfLockedPart(msg.sender, _amount), "insufficient supply");

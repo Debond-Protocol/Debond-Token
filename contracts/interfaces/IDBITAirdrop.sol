@@ -1,4 +1,6 @@
 pragma solidity ^0.8.9;
+// SPDX-License-Identifier: apache 2.0
+
 interface IDBITAirdrop {
 
     function merkleVerify(bytes32[] memory proof, bytes32 root, bytes32 leaf) external pure returns (bool);

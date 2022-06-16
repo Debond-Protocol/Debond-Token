@@ -1,12 +1,15 @@
-//
+// SPDX-License-Identifier: apache 2.0
+
 pragma solidity ^0.8.0;
 import "../interfaces/IDBIT.sol";
 import "../interfaces/IDBITAirdrop.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+
+
 contract DBITAirdrop is IDBITAirdrop, Ownable {
     address dbitAddress;
-    IDebondToken token;
+    IDBIT token;
 
     uint256 claimStart; // initial timestamp for starting the airdrop claim by the users
     uint256 claimDuration; // time taken (in sec) for the completion of the claim time
@@ -23,7 +26,7 @@ contract DBITAirdrop is IDBITAirdrop, Ownable {
         uint256 _claimDuration
     ) {
         dbitAddress = DBITAddress;
-        token = IDebondToken(DBITAddress);
+        token = IDBIT(DBITAddress);
         claimStart = _claimStart;
         claimDuration = _claimDuration;
     }
@@ -82,7 +85,7 @@ contract DBITAirdrop is IDBITAirdrop, Ownable {
             "DBIT Credit Airdrop: Drop already claimed."
         );
 
-        token.mintAirdroppedSupply(_to, _amount);
+        token.mintAirdropSupply(_to, _amount);
         withdrawClaimed[_to] = true;
 
         return true;
@@ -104,7 +107,7 @@ contract DBITAirdrop is IDBITAirdrop, Ownable {
             claim_started == false,
             "DBIT Credit Airdrop: already started."
         );
-        token.setAirdroppedSupply(airdropSupply);
+        token.setMaxAirdropSupply(airdropSupply);
         merkleRoot = _merkleRoot;
         merkleRoot_set = true;
         return true;
