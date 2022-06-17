@@ -109,7 +109,7 @@ contract DGOV is ERC20, IDGOV, GovernanceOwnable {
     }
 
     // Check if supply is locked function, this will be called by the transfer  function
-    function _checkIfLockedPart(address account, uint256 amountTransfer)
+    function _checkIfUnlockedPart(address account, uint256 amountTransfer)
         internal
         view
         returns (bool)
@@ -123,7 +123,7 @@ contract DGOV is ERC20, IDGOV, GovernanceOwnable {
         override(ERC20, IDGOV)
         returns (bool)
     {
-        require(_checkIfLockedPart(msg.sender, _amount), "insufficient supply");
+        require(_checkIfUnlockedPart(msg.sender, _amount), "insufficient supply");
         _transfer(msg.sender, _to, _amount);
         return true;
     }
@@ -141,7 +141,7 @@ contract DGOV is ERC20, IDGOV, GovernanceOwnable {
             "not available"
         );
         require(
-            _checkIfLockedPart(msg.sender, _amount) == true,
+            _checkIfUnlockedPart(msg.sender, _amount) == true,
             "insufficient supply"
         );
         transfer(_to, _amount);
