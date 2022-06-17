@@ -1,5 +1,7 @@
 pragma solidity ^0.8.9;
 
+import "./IDebondToken.sol";
+
 // SPDX-License-Identifier: apache 2.0
 /*
     Copyright 2021 Debond Protocol <info@debond.org>
@@ -13,56 +15,14 @@ pragma solidity ^0.8.9;
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-interface IDGOV {
-    function totalSupply() external view returns (uint256);
+interface IDGOV is IDebondToken{
 
     function getMaxSupply() external view returns (uint256);
 
-    function getTotalCollateralisedSupply() external view returns (uint256);
-
     function getMaxCollateralisedSupply() external view returns (uint256);
-
-    function getTotalAirdropSupply() external view returns (uint256);
-
-    function getMaxAirdropSupply() external view returns (uint256);
-
-    function getTotalAllocatedSupply() external view returns (uint256);
 
     function getMaxAllocatedSupply() external view returns (uint256);
 
-    function getTotalBalance(address _of) external view returns (uint256);
-
-    function getLockedBalance(address account)
-        external
-        view
-        returns (uint256 _lockedBalance);
-
-    function transfer(address _to, uint256 _amount) external returns (bool);
-
-    function directTransfer(address _to, uint256 _amount)
-        external
-        returns (bool);
-
-    function mintAirdropSupply(address _to, uint256 _amount) external;
-
-    function mintCollateralisedSupply(address _to, uint256 _amount) external;
-
-    function mintAllocatedSupply(address _to, uint256 _amount) external;
-
-    function getCollateralisedBalance(address _of)
-        external
-        view
-        returns (uint256);
-
-    function getAllocatedBalance(address _of) external view returns (uint256);
-
-    function getAirdropBalance(address _of) external view returns (uint256);
-
     function setMaxSupply(uint256 max_supply) external returns (bool);
 
-    function setMaxAirdropSupply(uint256 new_supply) external returns (bool);
-
-    function setMaxAllocationPercentage(uint256 newPercentage)
-        external
-        returns (bool);
 }
