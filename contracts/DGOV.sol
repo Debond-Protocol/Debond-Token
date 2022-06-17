@@ -96,21 +96,20 @@ contract DGOV is ERC20, IDGOV, GovernanceOwnable {
         view
         returns (uint256 _lockedBalance)
     {
-        uint256 _maxUnlockable = (_collateralisedSupply * 5 * 100) / 100;
+        // max 5% of collateralised supply can be transferred
+        uint256 _maxUnlockable = _collateralisedSupply * 5;
+        // multiplying by 100, since _maxUnlockable isn't divided by 100
         uint256 _currentAirdropSupply = _airdropSupply * 100;
 
-        if (_currentAirdropSupply <= _maxUnlockable) {
-            _lockedBalance = 0;
-        } else {
-            _lockedBalance =
-                ((100 - ((_maxUnlockable * 100) / _currentAirdropSupply)) *
-                    _airdropBalance[account]) /
-                100;
+        _lockedBalance = 0;
+        if (_currentAirdropSupply > _maxUnlockable){
+            _lockedBalance = ((100 - (_maxUnlockable * 100) / _currentAirdropSupply) * _airdropBalance[account]) / 100;
         }
+        return _lockedBalance;
     }
 
     // Check if supply is locked function, this will be called by the transfer  function
-    function _checkIfLockedPart(address account, uint256 amountTransfer)
+    function _checkIfUnlockedPart(address account, uint256 amountTransfer)
         internal
         view
         returns (bool)
@@ -124,7 +123,7 @@ contract DGOV is ERC20, IDGOV, GovernanceOwnable {
         override(ERC20, IDGOV)
         returns (bool)
     {
-        require(_checkIfLockedPart(msg.sender, _amount), "insufficient supply");
+        require(_checkIfUnlockedPart(msg.sender, _amount), "insufficient supply");
         _transfer(msg.sender, _to, _amount);
         return true;
     }
@@ -142,7 +141,7 @@ contract DGOV is ERC20, IDGOV, GovernanceOwnable {
             "not available"
         );
         require(
-            _checkIfLockedPart(msg.sender, _amount) == true,
+            _checkIfUnlockedPart(msg.sender, _amount) == true,
             "insufficient supply"
         );
         transfer(_to, _amount);
