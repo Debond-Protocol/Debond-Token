@@ -48,3 +48,22 @@ module.exports = {
     }
   }
 };
+
+
+/**
+ * TODO: add the following settings above when needed:
+  module.exports = {
+  compilers: {
+    external: {
+      command: "./compile-contracts",
+      targets: [{
+        path: "./path/to/preprocessed-artifacts/*.json",
+        command: "./process-artifact"
+      }]
+    }
+  }
+}
+* 
+ * 
+ * 
+ */

@@ -33,7 +33,6 @@ contract DBIT is ERC20, IDBIT, GovernanceOwnable {
 
     constructor(
         address governanceAddress,
-        //uint256 maxSupply,
         uint256 maxAirdropSupply,
         uint256 maxAllocpercentage
     ) ERC20("DBIT", "DBIT token") GovernanceOwnable(governanceAddress) {
@@ -93,23 +92,23 @@ contract DBIT is ERC20, IDBIT, GovernanceOwnable {
             _collateralisedBalance[_of]);
     }
 
+        // NEW VERSION
     function getLockedBalance(address account)
         public
         view
         returns (uint256 _lockedBalance)
     {
-        uint256 _maxUnlockable = (_collateralisedSupply * 5 * 100) / 100;
+        uint256 _maxUnlockable = 5 * _collateralisedSupply;
         uint256 _currentAirdropSupply = _airdropSupply * 100;
+
+        _lockedBalance =
+                (1 - (_maxUnlockable / _currentAirdropSupply)) * _airdropBalance[account];
 
         if (_currentAirdropSupply <= _maxUnlockable) {
             _lockedBalance = 0;
-        } else {
-            _lockedBalance =
-                ((100 - ((_maxUnlockable * 100) / _currentAirdropSupply)) *
-                    _airdropBalance[account]) /
-                100;
         }
     }
+
 
     // Check if supply is locked function, this will be called by the transfer  function
     function _checkIfLockedPart(address account, uint256 amountTransfer)
