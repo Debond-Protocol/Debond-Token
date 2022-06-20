@@ -1,25 +1,28 @@
 const DBIT = artifacts.require("DBIT");
 const DGOV = artifacts.require("DGOV");
 const governanceOwnable = artifacts.require("GovernanceOwnable");
+// TODO: just an dummy representation of contract for role based address, replace it before actual deployement.
+const governance = artifacts.require("Migrations");
 const Migrations = artifacts.require("Migrations");
-//const Bank = artifacts.require("Bank");
-// const Exchange = artifacts.require("Exchange");
+
 
 module.exports = async function (deployer,network, accounts) {
-  let maxAirdropSupplyDBIT = '1000000';
-  let maxAllocPercentageDBIT = '7';
+  let maxAirdropSupplyDBIT =  web3.utils.toWei('1000000','ether');
+  let maxAllocPercentageDBIT = '7'
   //  web3.utils.toWei(1000000000,"ether").toString();
-  let maxAirdropSupplyDGOV = '1000'
+  let maxAirdropSupplyDGOV = web3.utils.toWei('1000000000','ether');
    // 10% of the total supply : web3.utils.toWei(10000,"ether").toString();
   let maxAllocPercentageDGOV = '5';
 
-  let maxSupplyDGOV = '10000000'
+  let maxSupplyDGOV = web3.utils.toWei('1000000000','ether');
 
   const [deployerAddress] = accounts;
   await deployer.deploy(governanceOwnable, deployerAddress.toString());
+  
+  
   let governanceOwnableInstance= await governanceOwnable.deployed();
 
-  let governanceOwnableAddress = governanceOwnableInstance.address;
+  let governanceOwnableAddress = await governanceOwnableInstance.address;
 
   console.log('governance ownable address is ', governanceOwnableAddress);
 
@@ -30,20 +33,25 @@ module.exports = async function (deployer,network, accounts) {
     
     let DBITInstance = DBIT.deployed();
     let DGOVInstance = DGOV.deployed();
-    // TODO: currently debond-exchange contract along with debond-Bank is being workedout for the changes , thus there is dummy migration contract just for basic test 
-    // TODO: needs removal before the audit submission.
-    
     let BankInstance = Migrations.deployed();
     let ExchangeInstance = Migrations.deployed();
-    // TODO: governanceOwnable.setter functions are not detected by  compiled form.
-    // await governanceOwnable.setDBITAddress(DBITInstance.address, {from : deployerAddress.toString()});
-    // await governanceOwnable.setDGOVInstanceAddress(DGOVInstance.address, {from : deployerAddress.toString()});
-    // await governanceOwnable.setBankAddress(BankInstance.address, {from : deployerAddress.toString()});
-    // await governanceOwnable.setExchangeAddress(ExchangeInstance.address, {from : deployerAddress.toString()});
-  
-  
-    console.log()
-  
-  
+    
+    
+  // setting up initial account parameters. 
+    DBITInstance.setBankAddress(BankInstance.address, {from:governanceOwnableAddress});
+    DBITInstance.setExchangeAddress(ExchangeInstance.address, {from: governanceOwnableAddress});
+    DBITInstance.setGovernanceAddress(deployer, {from:governanceOwnableAddress});
+    DBITInstance.setMaxAllocationPercentage(maxAllocPercentageDBIT);
+    DBITInstance.setMaxAirdropSupply(maxAirdropSupplyDBIT);
+
+    DGOVInstance.setBankAddress(BankInstance.address, {from:governanceOwnableAddress});
+    DGOVInstance.setExchangeAddress(ExchangeInstance.address, {from: governanceOwnableAddress});
+    DGOVInstance.setGovernanceAddress(GovernanceInstance.address, {from:governanceOwnableAddress});
+    DGOVInstance.setMaxSupply(maxSupplyDGOV);
+    DGOVInstance.setMaxAllocationPercentage(maxAllocPercentageDGOV);
+    DGOVInstance.setMaxAirdropSupply(maxAirdropSupplyDGOV);
+
+
+
   };
   

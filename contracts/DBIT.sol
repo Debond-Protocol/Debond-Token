@@ -54,22 +54,11 @@ contract DBIT is ERC20, IDBIT, GovernanceOwnable {
         return _collateralisedSupply + _allocatedSupply + _airdropSupply;
     }
 
-    /*
-    function getMaxSupply() external view returns (uint256) {
-        return _maximumSupply;
-    }
-*/
+
     function getTotalCollateralisedSupply() external view returns (uint256) {
         return _collateralisedSupply;
     }
 
-    /*
-    function getMaxCollateralisedSupply() external view returns (uint256) {
-        return (_maximumSupply -
-            (_maxAirdropSupply +
-                ((_maximumSupply * _maxAllocationPercentage) / 10000)));
-    }
-*/
     function getTotalAirdropSupply() public view returns (uint256) {
         return _airdropSupply;
     }
@@ -86,7 +75,7 @@ contract DBIT is ERC20, IDBIT, GovernanceOwnable {
         return _maxAllocationPercentage;
     }
 
-    function getTotalBalance(address _of) external view returns (uint256) {
+    function balanceOf(address _of) public override view returns (uint256) {
         return (_airdropBalance[_of] +
             _allocatedBalance[_of] +
             _collateralisedBalance[_of]);
@@ -98,9 +87,7 @@ contract DBIT is ERC20, IDBIT, GovernanceOwnable {
         view
         returns (uint256 _lockedBalance)
     {
-        // max 5% of collateralised supply can be transferred
         uint256 _maxUnlockable = _collateralisedSupply * 5;
-        // multiplying by 100, since _maxUnlockable isn't divided by 100
         uint256 _currentAirdropSupply = _airdropSupply * 100;
 
         _lockedBalance = 0;
@@ -219,13 +206,6 @@ contract DBIT is ERC20, IDBIT, GovernanceOwnable {
         return _airdropBalance[_of];
     }
 
-    /*
-    function setMaxSupply(uint256 max_supply) public returns (bool) {
-        require(msg.sender == _debondOperator, "denied:setMaxSupply");
-        _maximumSupply = max_supply;
-        return true;
-    }
-*/
     function setMaxAirdropSupply(uint256 new_supply) public returns (bool) {
         require(msg.sender == _debondOperator, "denied:setAirdropSupply");
         _maxAirdropSupply = new_supply;
