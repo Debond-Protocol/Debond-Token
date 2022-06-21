@@ -52,7 +52,7 @@ contract DGOV is IDGOV, DebondToken {
         return true;
     }
 
-    function mintAllocatedSupply(address _to, uint256 _amount) external {
+    function mintAllocatedSupply(address _to, uint256 _amount) external onlyGovernance {
         require(msg.sender == airdropAddress);
         require(
             _amount <
@@ -64,7 +64,7 @@ contract DGOV is IDGOV, DebondToken {
         _mintAllocatedSupply(_to, _amount);
     }
 
-    function mintCollateralisedSupply(address _to, uint256 _amount) external {
+    function mintCollateralisedSupply(address _to, uint256 _amount) external onlyBank {
         require(msg.sender == bankAddress);
         require(
             _amount <=
@@ -78,13 +78,11 @@ contract DGOV is IDGOV, DebondToken {
         _mintCollateralisedSupply(_to, _amount);
     }
 
-    function totalSupply() public view override(DebondToken, IDebondToken) returns (uint256)
-    {
+    function totalSupply() public view override(DebondToken, IDebondToken) returns (uint256) {
         return super.totalSupply();
     }
 
-    function transfer(address _to, uint256 _amount) public override(DebondToken, IDebondToken) returns (bool)
-    {
+    function transfer(address _to, uint256 _amount) public override(DebondToken, IDebondToken) returns (bool) {
         return super.transfer(_to, _amount);
     }
 }

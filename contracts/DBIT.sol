@@ -29,13 +29,11 @@ contract DBIT is IDBIT, DebondToken {
         uint256 maxAllocpercentage
     ) DebondToken(name, symbol, airdropAddress, bankAddress, governanceAddress, maxAirdropSupply, maxAllocpercentage) {}
 
-    function mintCollateralisedSupply(address _to, uint256 _amount) external {
-        require(msg.sender == bankAddress);
+    function mintCollateralisedSupply(address _to, uint256 _amount) external onlyBank {
         _mintCollateralisedSupply(_to, _amount);
     }
 
-    function mintAllocatedSupply(address _to, uint256 _amount) external {
-        require(msg.sender == airdropAddress);
+    function mintAllocatedSupply(address _to, uint256 _amount) external onlyAirdrop {
         _mintAllocatedSupply(_to, _amount);
     }
 
@@ -43,13 +41,11 @@ contract DBIT is IDBIT, DebondToken {
         return _maxAllocationPercentage;
     }
 
-    function totalSupply() public view override(DebondToken, IDebondToken) returns (uint256)
-    {
+    function totalSupply() public view override(DebondToken, IDebondToken) returns (uint256){
         return super.totalSupply();
     }
 
-    function transfer(address _to, uint256 _amount) public override(DebondToken, IDebondToken) returns (bool)
-    {
+    function transfer(address _to, uint256 _amount) public override(DebondToken, IDebondToken) returns (bool){
         return super.transfer(_to, _amount);
     }
 
