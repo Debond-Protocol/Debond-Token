@@ -187,6 +187,16 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
         _mint(_to, _amount);
     }
 
+    function setBankAddress(address _bankAddress) external onlyGovernance {
+        require(_bankAddress != address(0), "DebondToken Error: address 0 given");
+        bankAddress = _bankAddress;
+    }
+
+    function setAirdropAddress(address _airdropAddress) external onlyGovernance {
+        require(_airdropAddress != address(0), "DebondToken Error: address 0 given");
+        airdropAddress = _airdropAddress;
+    }
+
 
 
 

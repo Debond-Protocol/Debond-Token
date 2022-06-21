@@ -53,4 +53,8 @@ interface IDebondToken {
     function setMaxAllocationPercentage(uint256 newPercentage)
     external
     returns (bool);
+
+    function setBankAddress(address _bankAddress) external;
+
+    function setAirdropAddress(address _airdropAddress) external;
 }

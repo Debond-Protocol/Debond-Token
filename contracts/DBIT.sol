@@ -20,14 +20,18 @@ import "./interfaces/IDBIT.sol";
 contract DBIT is IDBIT, DebondToken {
 
     constructor(
-        string memory name,
-        string memory symbol,
-        address airdropAddress,
-        address bankAddress,
         address governanceAddress,
-        uint256 maxAirdropSupply,
-        uint256 maxAllocpercentage
-    ) DebondToken(name, symbol, airdropAddress, bankAddress, governanceAddress, maxAirdropSupply, maxAllocpercentage) {}
+        address bankAddress,
+        address airdropAddress
+    ) DebondToken(
+        "DBIT",
+        "DBIT",
+        airdropAddress,
+        bankAddress,
+        governanceAddress,
+        500_000 ether,
+        1000 // rate on 10000 (10%)
+    ) {}
 
     function mintCollateralisedSupply(address _to, uint256 _amount) external onlyBank {
         _mintCollateralisedSupply(_to, _amount);

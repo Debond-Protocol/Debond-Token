@@ -21,16 +21,19 @@ contract DGOV is IDGOV, DebondToken {
     uint256 internal _maximumSupply;
 
     constructor(
-        string memory name,
-        string memory symbol,
-        address airdropAddress,
-        address bankAddress,
-        address governanceAddress,
-        uint256 maxSupply,
-        uint256 maxAirdropSupply,
-        uint256 maxAllocpercentage
-    ) DebondToken(name, symbol, airdropAddress, bankAddress, governanceAddress, maxAirdropSupply, maxAllocpercentage) {
-        _maximumSupply = maxSupply;
+    address governanceAddress,
+    address bankAddress,
+    address airdropAddress
+    ) DebondToken(
+        "DGOV",
+        "DGOV",
+        airdropAddress,
+        bankAddress,
+        governanceAddress,
+        250_000 ether,
+        1000 // rate on 10000 (10%)
+    ) {
+        _maximumSupply = 1_000_000 ether;
     }
 
     function getMaxSupply() external view returns (uint256) {
@@ -43,8 +46,8 @@ contract DGOV is IDGOV, DebondToken {
 
     function getMaxCollateralisedSupply() external view returns (uint256) {
         return (_maximumSupply -
-            (_maxAirdropSupply +
-                ((_maximumSupply * _maxAllocationPercentage) / 10000)));
+        (_maxAirdropSupply +
+        ((_maximumSupply * _maxAllocationPercentage) / 10000)));
     }
 
     function setMaxSupply(uint256 max_supply) external onlyGovernance returns (bool) {
