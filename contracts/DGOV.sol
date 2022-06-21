@@ -184,7 +184,7 @@ contract DGOV is ERC20, IDGOV, GovernanceOwnable {
     }
 
     function mintAllocatedSupply(address _to, uint256 _amount) external {
-        require(msg.sender == _airdropAddress);
+        require(msg.sender == _governanceAddress);
         require(
             _amount <
                 (_maximumSupply * _maxAllocationPercentage) /
