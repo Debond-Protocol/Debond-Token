@@ -1,24 +1,23 @@
 import { expect } from "chai";
 import Web3 from "web3";
-import {DGOVInstance,, DBITAirdropInstance} from "../types/truffle-contracts";
+import {DGOVInstance,MigrationsInstance} from "../types/truffle-contracts";
 const DBIT = artifacts.require("DGOV");
 const DBITAirdrop = artifacts.require("DBITAirdrop"); 
 const web3 = require('web3');
 contract("DBIT token", async (accounts: any ) => {
-let dgovObj : DBITInstance;
+let dgovObj : DGOVInstance;
 // TODO: just taken as the demo for replicating the ng the other contracts , to be removed
-let Bank : BankInstance;
-let Governance : GovernanceInstance
-let DBITAirdrop : DBITAirdropInstance;
-let Exchange : ExchangeInstance;
-
+let Bank : MigrationsInstance;
+let Governance : MigrationsInstance
+let Exchange : MigrationsInstance;
+let airdrop: MigrationsInstance;
 let [deployer , User1 , User2, bank , exchange] = accounts;
 
 
 before('instantiation', async() => {
    
    
-    dgovObj = await DGOV.deployed();
+    dgovObj = await DGOVInstance.deployed();
     // TODO: to change name for the DBITAirdrop to general airdrop.
     DBITAirdrop = await DBITAirdrop.deployed();
     Governance = await governance.deployed();

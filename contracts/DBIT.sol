@@ -75,7 +75,7 @@ contract DBIT is ERC20, IDBIT, GovernanceOwnable {
         return _maxAllocationPercentage;
     }
 
-    function balanceOf(address _of) public override view returns (uint256) {
+    function getTotalBalance(address _of) public  view returns (uint256) {
         return (_airdropBalance[_of] +
             _allocatedBalance[_of] +
             _collateralisedBalance[_of]);

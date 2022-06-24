@@ -85,7 +85,7 @@ contract DGOV is ERC20, IDGOV, GovernanceOwnable {
         return (_maximumSupply * _maxAllocationPercentage) / 10000;
     }
 
-    function getTotalBalance(address _of) external view returns (uint256) {
+    function getTotalBalance(address _of) public view  returns (uint256) {
         return (_airdropBalance[_of] +
             _allocatedBalance[_of] +
             _collateralisedBalance[_of]);
