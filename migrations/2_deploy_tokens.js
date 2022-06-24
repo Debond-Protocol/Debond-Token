@@ -8,10 +8,10 @@ const Migrations = artifacts.require("Migrations");
 
 module.exports = async function (deployer,network, accounts) {
   let maxAirdropSupplyDBIT =  web3.utils.toWei('1000000','ether');
-  let maxAllocPercentageDBIT = '7'
-  //  web3.utils.toWei(1000000000,"ether").toString();
+  let maxAllocPercentageDBIT = '7';
+  
   let maxAirdropSupplyDGOV = web3.utils.toWei('1000000000','ether');
-   // 10% of the total supply : web3.utils.toWei(10000,"ether").toString();
+  
   let maxAllocPercentageDGOV = '5';
 
   let maxSupplyDGOV = web3.utils.toWei('1000000000','ether');
@@ -38,18 +38,18 @@ module.exports = async function (deployer,network, accounts) {
     
     
   // setting up initial account parameters. 
-    DBITInstance.setBankAddress(BankInstance.address, {from:governanceOwnableAddress});
-    DBITInstance.setExchangeAddress(ExchangeInstance.address, {from: governanceOwnableAddress});
-    DBITInstance.setGovernanceAddress(deployer, {from:governanceOwnableAddress});
-    DBITInstance.setMaxAllocationPercentage(maxAllocPercentageDBIT);
-    DBITInstance.setMaxAirdropSupply(maxAirdropSupplyDBIT);
+    // DBITInstance.setBankAddress(BankInstance.address, {from:governanceOwnableAddress});
+    // DBITInstance.setExchangeAddress(ExchangeInstance.address, {from: governanceOwnableAddress});
+    // DBITInstance.setGovernanceAddress(deployer, {from:governanceOwnableAddress});
+    // DBITInstance.setMaxAllocationPercentage(maxAllocPercentageDBIT);
+    // DBITInstance.setMaxAirdropSupply(maxAirdropSupplyDBIT);
 
-    DGOVInstance.setBankAddress(BankInstance.address, {from:governanceOwnableAddress});
-    DGOVInstance.setExchangeAddress(ExchangeInstance.address, {from: governanceOwnableAddress});
-    DGOVInstance.setGovernanceAddress(GovernanceInstance.address, {from:governanceOwnableAddress});
-    DGOVInstance.setMaxSupply(maxSupplyDGOV);
-    DGOVInstance.setMaxAllocationPercentage(maxAllocPercentageDGOV);
-    DGOVInstance.setMaxAirdropSupply(maxAirdropSupplyDGOV);
+    // DGOVInstance.setBankAddress(BankInstance.address, {from:governanceOwnableAddress});
+    // DGOVInstance.setExchangeAddress(ExchangeInstance.address, {from: governanceOwnableAddress});
+    // DGOVInstance.setGovernanceAddress(GovernanceInstance.address, {from:governanceOwnableAddress});
+    // DGOVInstance.setMaxSupply(maxSupplyDGOV);
+    // DGOVInstance.setMaxAllocationPercentage(maxAllocPercentageDGOV);
+    // DGOVInstance.setMaxAirdropSupply(maxAirdropSupplyDGOV);
 
 
 
