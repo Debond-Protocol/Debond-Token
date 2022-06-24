@@ -22,13 +22,15 @@ contract DBIT is IDBIT, DebondToken {
     constructor(
         address governanceAddress,
         address bankAddress,
-        address airdropAddress
+        address airdropAddress,
+        address exchangeAddress
     ) DebondToken(
         "DBIT",
         "DBIT",
         airdropAddress,
         bankAddress,
         governanceAddress,
+        exchangeAddress,
         500_000 ether,
         1000 // rate on 10000 (10%)
     ) {}

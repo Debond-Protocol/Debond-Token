@@ -23,13 +23,15 @@ contract DGOV is IDGOV, DebondToken {
     constructor(
     address governanceAddress,
     address bankAddress,
-    address airdropAddress
+    address airdropAddress,
+    address _exchangeAddress
     ) DebondToken(
         "DGOV",
         "DGOV",
         airdropAddress,
         bankAddress,
         governanceAddress,
+        _exchangeAddress,
         250_000 ether,
         1000 // rate on 10000 (10%)
     ) {

@@ -1,7 +1,33 @@
 # Debond-Token
 
-- This repo consist of the contracts for DBIT and DGOV token.
+This repo consist of the ERC20 contracts  which are minted when the bond is redeemed by the user. it consist of following contracts: 
+
+- DebondToken is the common implementation of all the minting and getter contracts needed by both DBIT/DGOV ones.
+- DGOV contracts essentially is inheritance of DebondToken contract with sole condition of having an hardcap supply of tokens.
+- DBIT similarly is inheritance of the DebondToken with no supply cap.
 
 ## deploying details
 
-- DBIT and DGOV contract needs the deployed governance address (by running the migration scripts from `Debond-Governance`), the scripts in migration does exactly that.
+```bash
+> npm i
+
+> truffle compile 
+
+
+> npm run generate-types
+
+## running both commands in parallel terminal.
+
+> truffle test  
+> npx ganache -p 7545
+
+```
+
+## UML diagram
+
+
+
+
+
+
+

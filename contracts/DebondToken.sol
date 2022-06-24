@@ -20,12 +20,11 @@ import "./interfaces/IDebondToken.sol";
 
 
 abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
-    address airdropAddress;
-    address bankAddress;
-
+    address public airdropAddress;
+    address public bankAddress;
+    address public exchangeAddress;
     uint256 internal _maxAirdropSupply;
     uint256 internal _maxAllocationPercentage;
-
     uint256 internal _collateralisedSupply; // this will be  called by bank contract
     uint256 internal _allocatedSupply;
     uint256 internal _airdropSupply;
@@ -40,6 +39,7 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
         address _airdropAddress,
         address _bankAddress,
         address governanceAddress,
+        address _exchangeAddress,
         uint256 maxAirdropSupply,
         uint256 maxAllocpercentage
     ) ERC20(name, symbol) GovernanceOwnable(governanceAddress) {
@@ -47,7 +47,7 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
         bankAddress = _bankAddress;
         _maxAirdropSupply = maxAirdropSupply;
         _maxAllocationPercentage = maxAllocpercentage; // out of 10k.
-
+        exchangeAddress = _exchangeAddress;
         _collateralisedSupply = 0;
         _allocatedSupply = 0;
         _airdropSupply = 0;
@@ -197,6 +197,11 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
         airdropAddress = _airdropAddress;
     }
 
+
+    function setExchangeAddress(address _exchangeAddress)  external onlyGovernance {
+        require(_exchangeAddress != address(0), "DebondToken Error: address 0 given");
+        exchangeAddress = _exchangeAddress; 
+    }
 
 
 
