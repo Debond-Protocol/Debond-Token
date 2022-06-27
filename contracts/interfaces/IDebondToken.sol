@@ -33,6 +33,8 @@ interface IDebondToken {
 
     function transfer(address _to, uint256 _amount) external returns (bool);
 
+    function transferFrom(address _from, address _to, uint256 _amount) external   returns (bool);
+   
     function mintAirdropSupply(address _to, uint256 _amount) external;
 
     function mintCollateralisedSupply(address _to, uint256 _amount) external;
@@ -57,4 +59,5 @@ interface IDebondToken {
     function setBankAddress(address _bankAddress) external;
 
     function setAirdropAddress(address _airdropAddress) external;
+
 }

@@ -39,7 +39,7 @@ contract DBIT is IDBIT, DebondToken {
         _mintCollateralisedSupply(_to, _amount);
     }
 
-    function mintAllocatedSupply(address _to, uint256 _amount) external onlyAirdrop {
+    function mintAllocatedSupply(address _to, uint256 _amount) external onlyGovernance {
         _mintAllocatedSupply(_to, _amount);
     }
 
@@ -53,5 +53,11 @@ contract DBIT is IDBIT, DebondToken {
 
     function transfer(address _to, uint256 _amount) public override(DebondToken, IDebondToken) returns (bool){
         return super.transfer(_to, _amount);
+    }
+
+    function transferFrom(address _from, address _to, uint256 _amount) public override(DebondToken, IDebondToken) returns (bool) {
+
+        return super.transferFrom(_from, _to, _amount);
+
     }
 }

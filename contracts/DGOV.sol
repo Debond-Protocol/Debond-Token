@@ -91,4 +91,11 @@ contract DGOV is IDGOV, DebondToken {
     function transfer(address _to, uint256 _amount) public override(DebondToken, IDebondToken) returns (bool) {
         return super.transfer(_to, _amount);
     }
+
+     function transferFrom(address _from, address _to, uint256 _amount) public override(DebondToken, IDebondToken) returns (bool) {
+
+        return super.transferFrom(_from, _to, _amount);
+
+    }
+
 }

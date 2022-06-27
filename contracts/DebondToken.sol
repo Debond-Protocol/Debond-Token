@@ -18,7 +18,6 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "debond-governance-contracts/utils/GovernanceOwnable.sol";
 import "./interfaces/IDebondToken.sol";
 
-
 abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
     address public airdropAddress;
     address public bankAddress;
@@ -54,21 +53,21 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
     }
 
     modifier onlyBank() {
-        require(msg.sender == bankAddress);
+        require(msg.sender == bankAddress, "DebondToken: only Bank Callable");
         _;
     }
 
     modifier onlyAirdrop() {
-        require(msg.sender == airdropAddress);
+        require(msg.sender == airdropAddress, "DebondToken: only Airdrop Callable");
         _;
     }
 
     function totalSupply()
-    public
-    view
-    virtual
-    override(ERC20, IDebondToken)
-    returns (uint256)
+        public
+        view
+        virtual
+        override(ERC20, IDebondToken)
+        returns (uint256)
     {
         return _collateralisedSupply + _allocatedSupply + _airdropSupply;
     }
@@ -91,14 +90,14 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
 
     function getTotalBalance(address _of) external view returns (uint256) {
         return (_airdropBalance[_of] +
-        _allocatedBalance[_of] +
-        _collateralisedBalance[_of]);
+            _allocatedBalance[_of] +
+            _collateralisedBalance[_of]);
     }
 
     function getLockedBalance(address account)
-    public
-    view
-    returns (uint256 _lockedBalance)
+        public
+        view
+        returns (uint256 _lockedBalance)
     {
         // max 5% of collateralised supply can be transferred
         uint256 _maxUnlockable = _collateralisedSupply * 5;
@@ -106,35 +105,73 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
         uint256 _currentAirdropSupply = _airdropSupply * 100;
 
         _lockedBalance = 0;
-        if (_currentAirdropSupply > _maxUnlockable){
-            _lockedBalance = ((100 - (_maxUnlockable * 100) / _currentAirdropSupply) * _airdropBalance[account]) / 100;
+        if (_currentAirdropSupply > _maxUnlockable) {
+            _lockedBalance =
+                ((100 - (_maxUnlockable * 100) / _currentAirdropSupply) *
+                    _airdropBalance[account]) /
+                100;
         }
         return _lockedBalance;
     }
 
     // Check if supply is locked function, this will be called by the transfer  function
     function _checkIfUnlockedPart(address account, uint256 amountTransfer)
-    internal
-    view
-    returns (bool)
+        internal
+        view
+        returns (bool)
     {
         return
-        (balanceOf(account) - getLockedBalance(account)) >= amountTransfer;
+            (balanceOf(account) - getLockedBalance(account)) >= amountTransfer;
     }
 
     function transfer(address _to, uint256 _amount)
-    public
-    virtual
-    override(ERC20, IDebondToken)
-    returns (bool)
+        public
+        virtual
+        override(ERC20, IDebondToken)
+        returns (bool)
     {
-        require(_checkIfUnlockedPart(msg.sender, _amount), "insufficient supply");
+        require(
+            _checkIfUnlockedPart(msg.sender, _amount),
+            "insufficient supply"
+        );
         _transfer(msg.sender, _to, _amount);
         return true;
     }
 
+    function transferFrom(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) public virtual override(ERC20,IDebondToken) returns (bool) {
+        require(
+            _checkIfUnlockedPart(msg.sender, _amount),
+            "insufficient supply"
+        );
+        _transfer(_from, _to, _amount);
+        return true;
+    }
+
+    function directTransfer(address _to, uint256 _amount)
+        public
+        returns (bool)
+    {
+        require(
+            msg.sender == exchangeAddress || msg.sender == bankAddress,
+            "not available"
+        );
+
+        require(
+            _checkIfUnlockedPart(msg.sender, _amount) == true,
+            "insufficient supply"
+        );
+
+        _transfer(msg.sender,_to, _amount);
+
+        return true;
+    }
+
     // Must be sent from the airdrop contract address which is defined in the constructor
-    function mintAirdropSupply(address _to, uint256 _amount) external {
+    function mintAirdropSupply(address _to, uint256 _amount) external onlyAirdrop {
         require(msg.sender == airdropAddress, "denied");
         require(
             _airdropSupply + _amount <= _maxAirdropSupply,
@@ -149,9 +186,9 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
     }
 
     function getCollateralisedBalance(address _of)
-    external
-    view
-    returns (uint256)
+        external
+        view
+        returns (uint256)
     {
         return _collateralisedBalance[_of];
     }
@@ -164,12 +201,19 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
         return _airdropBalance[_of];
     }
 
-    function setMaxAirdropSupply(uint256 new_supply) external onlyGovernance returns (bool) {
+    function setMaxAirdropSupply(uint256 new_supply)
+        external
+        onlyGovernance
+        returns (bool)
+    {
         _maxAirdropSupply = new_supply;
         return true;
     }
 
-    function setMaxAllocationPercentage(uint256 newPercentage) external onlyGovernance returns (bool)
+    function setMaxAllocationPercentage(uint256 newPercentage)
+        external
+        onlyGovernance
+        returns (bool)
     {
         _maxAllocationPercentage = newPercentage;
         return true;
@@ -188,21 +232,32 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
     }
 
     function setBankAddress(address _bankAddress) external onlyGovernance {
-        require(_bankAddress != address(0), "DebondToken Error: address 0 given");
+        require(
+            _bankAddress != address(0),
+            "DebondToken Error: address 0 given"
+        );
         bankAddress = _bankAddress;
     }
 
-    function setAirdropAddress(address _airdropAddress) external onlyGovernance {
-        require(_airdropAddress != address(0), "DebondToken Error: address 0 given");
+    function setAirdropAddress(address _airdropAddress)
+        external
+        onlyGovernance
+    {
+        require(
+            _airdropAddress != address(0),
+            "DebondToken Error: address 0 given"
+        );
         airdropAddress = _airdropAddress;
     }
 
-
-    function setExchangeAddress(address _exchangeAddress)  external onlyGovernance {
-        require(_exchangeAddress != address(0), "DebondToken Error: address 0 given");
-        exchangeAddress = _exchangeAddress; 
+    function setExchangeAddress(address _exchangeAddress)
+        external
+        onlyGovernance
+    {
+        require(
+            _exchangeAddress != address(0),
+            "DebondToken Error: address 0 given"
+        );
+        exchangeAddress = _exchangeAddress;
     }
-
-
-
-    }
+}
