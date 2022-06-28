@@ -147,26 +147,7 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
             _checkIfUnlockedPart(msg.sender, _amount),
             "insufficient supply"
         );
-        _transfer(_from, _to, _amount);
-        return true;
-    }
-
-    function directTransfer(address _to, uint256 _amount)
-        public
-        returns (bool)
-    {
-        require(
-            msg.sender == exchangeAddress || msg.sender == bankAddress,
-            "not available"
-        );
-
-        require(
-            _checkIfUnlockedPart(msg.sender, _amount) == true,
-            "insufficient supply"
-        );
-
-        _transfer(msg.sender,_to, _amount);
-
+        super.transferFrom(_from, _to, _amount);
         return true;
     }
 
