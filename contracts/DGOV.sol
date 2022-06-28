@@ -42,6 +42,8 @@ contract DGOV is IDGOV, DebondToken {
         return _maximumSupply;
     }
 
+    
+
     function getMaxAllocatedSupply() public view returns (uint256) {
         return (_maximumSupply * _maxAllocationPercentage) / 10000;
     }
@@ -59,7 +61,6 @@ contract DGOV is IDGOV, DebondToken {
     }
 
     function mintAllocatedSupply(address _to, uint256 _amount) external onlyGovernance {
-        require(msg.sender == airdropAddress);
         require(
             _amount <
             (_maximumSupply * _maxAllocationPercentage) /

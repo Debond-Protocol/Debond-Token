@@ -172,7 +172,6 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
 
     // Must be sent from the airdrop contract address which is defined in the constructor
     function mintAirdropSupply(address _to, uint256 _amount) external onlyAirdrop {
-        require(msg.sender == airdropAddress, "denied");
         require(
             _airdropSupply + _amount <= _maxAirdropSupply,
             "exceeds the airdrop limit"

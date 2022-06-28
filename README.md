@@ -23,11 +23,6 @@ This repo consist of the ERC20 contracts  which are minted when the bond is rede
 
 ```
 
-## UML diagram
+## Miscellaneous: 
 
-
-
-
-
-
-
+- the contract inheritance  diagram & details of contracts are available in the docs/ folder.
