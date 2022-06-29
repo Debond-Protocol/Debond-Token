@@ -71,14 +71,9 @@ contract DGOV is IDGOV, DebondToken {
         _mintAllocatedSupply(_to, _amount);
     }
 
-    function mintCollateralisedSupply(address _to, uint256 _amount) external onlyBank {
-        require(msg.sender == bankAddress);
+    function mintCollateralisedSupply(address _to, uint256 _amount) external onlyBank {        
         require(
-            _amount <=
-            _maximumSupply -
-            (_maxAirdropSupply +
-            ((_maximumSupply * _maxAllocationPercentage) / 10000) +
-            _collateralisedSupply),
+            _amount <=  _maximumSupply - (_maxAirdropSupply + ((_maximumSupply * _maxAllocationPercentage) / 10000) + _collateralisedSupply),
             "exceeds limit"
         );
 
