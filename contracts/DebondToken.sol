@@ -58,7 +58,10 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
     }
 
     modifier onlyAirdrop() {
-        require(msg.sender == airdropAddress, "DebondToken: only Airdrop Callable");
+        require(
+            msg.sender == airdropAddress,
+            "DebondToken: only Airdrop Callable"
+        );
         _;
     }
 
@@ -86,6 +89,10 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
 
     function getTotalAllocatedSupply() public view returns (uint256) {
         return _allocatedSupply;
+    }
+
+    function getMaxAllocatedPercentage() external view returns (uint256) {
+        return _maxAllocationPercentage;
     }
 
     function getTotalBalance(address _of) external view returns (uint256) {
@@ -142,17 +149,17 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
         address _from,
         address _to,
         uint256 _amount
-    ) public virtual override(ERC20,IDebondToken) returns (bool) {
-        require(
-            _checkIfUnlockedPart(msg.sender, _amount),
-            "insufficient supply"
-        );
+    ) public virtual override(ERC20, IDebondToken) returns (bool) {
+        require(_checkIfUnlockedPart(_from, _amount), "insufficient supply");
         super.transferFrom(_from, _to, _amount);
         return true;
     }
 
     // Must be sent from the airdrop contract address which is defined in the constructor
-    function mintAirdropSupply(address _to, uint256 _amount) external onlyAirdrop {
+    function mintAirdropSupply(address _to, uint256 _amount)
+        external
+        onlyAirdrop
+    {
         require(
             _airdropSupply + _amount <= _maxAirdropSupply,
             "exceeds the airdrop limit"
@@ -186,6 +193,10 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
         onlyGovernance
         returns (bool)
     {
+        require(
+            new_supply >= _airdropSupply,
+            "Airdrop: Max supply cannot be less than current supply"
+        );
         _maxAirdropSupply = new_supply;
         return true;
     }
@@ -195,6 +206,10 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
         onlyGovernance
         returns (bool)
     {
+        require(
+            newPercentage < 10000,
+            "Allocation: Percentage cannot go above 9999 Parts"
+        );
         _maxAllocationPercentage = newPercentage;
         return true;
     }

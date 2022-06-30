@@ -15,47 +15,64 @@ pragma solidity ^0.8.0;
 */
 
 import "./DebondToken.sol";
-import "./interfaces/IDBIT.sol";
 
-contract DBIT is IDBIT, DebondToken {
-
+contract DBIT is DebondToken {
     constructor(
         address governanceAddress,
         address bankAddress,
         address airdropAddress,
         address exchangeAddress
-    ) DebondToken(
-        "DBIT",
-        "DBIT",
-        airdropAddress,
-        bankAddress,
-        governanceAddress,
-        exchangeAddress,
-        500_000 ether,
-        1000 // rate on 10000 (10%)
-    ) {}
+    )
+        DebondToken(
+            "DBIT",
+            "DBIT",
+            airdropAddress,
+            bankAddress,
+            governanceAddress,
+            exchangeAddress,
+            500_000 ether,
+            1000 // rate on 10000 (10%)
+        )
+    {}
 
-    function mintCollateralisedSupply(address _to, uint256 _amount) external onlyBank {
+    function mintCollateralisedSupply(address _to, uint256 _amount)
+        external
+        onlyBank
+    {
         _mintCollateralisedSupply(_to, _amount);
     }
 
-    function mintAllocatedSupply(address _to, uint256 _amount) external onlyGovernance {
+    function mintAllocatedSupply(address _to, uint256 _amount)
+        external
+        onlyGovernance
+    {
+        require(
+            _amount <
+                (totalSupply() * _maxAllocationPercentage) /
+                    10000 -
+                    _allocatedSupply,
+            "limit exceeds"
+        );
         _mintAllocatedSupply(_to, _amount);
     }
 
-    function getMaxAllocatedPercentage() external view returns (uint256) {
-        return _maxAllocationPercentage;
-    }
-
-    function totalSupply() public view override(DebondToken, IDebondToken) returns (uint256){
+    function totalSupply() public view override(DebondToken) returns (uint256) {
         return super.totalSupply();
     }
 
-    function transfer(address _to, uint256 _amount) public override(DebondToken, IDebondToken) returns (bool){
+    function transfer(address _to, uint256 _amount)
+        public
+        override(DebondToken)
+        returns (bool)
+    {
         return super.transfer(_to, _amount);
     }
 
-    function transferFrom(address _from, address _to, uint256 _amount) public override(DebondToken, IDebondToken) returns (bool) {
+    function transferFrom(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) public override(DebondToken) returns (bool) {
         return super.transferFrom(_from, _to, _amount);
     }
 }

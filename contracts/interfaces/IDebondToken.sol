@@ -24,17 +24,23 @@ interface IDebondToken {
 
     function getTotalAllocatedSupply() external view returns (uint256);
 
+    function getMaxAllocatedPercentage() external view returns (uint256);
+
     function getTotalBalance(address _of) external view returns (uint256);
 
     function getLockedBalance(address account)
-    external
-    view
-    returns (uint256 _lockedBalance);
+        external
+        view
+        returns (uint256 _lockedBalance);
 
     function transfer(address _to, uint256 _amount) external returns (bool);
 
-    function transferFrom(address _from, address _to, uint256 _amount) external   returns (bool);
-   
+    function transferFrom(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) external returns (bool);
+
     function mintAirdropSupply(address _to, uint256 _amount) external;
 
     function mintCollateralisedSupply(address _to, uint256 _amount) external;
@@ -42,9 +48,9 @@ interface IDebondToken {
     function mintAllocatedSupply(address _to, uint256 _amount) external;
 
     function getCollateralisedBalance(address _of)
-    external
-    view
-    returns (uint256);
+        external
+        view
+        returns (uint256);
 
     function getAllocatedBalance(address _of) external view returns (uint256);
 
@@ -53,11 +59,10 @@ interface IDebondToken {
     function setMaxAirdropSupply(uint256 new_supply) external returns (bool);
 
     function setMaxAllocationPercentage(uint256 newPercentage)
-    external
-    returns (bool);
+        external
+        returns (bool);
 
     function setBankAddress(address _bankAddress) external;
 
     function setAirdropAddress(address _airdropAddress) external;
-
 }

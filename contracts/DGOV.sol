@@ -21,20 +21,22 @@ contract DGOV is IDGOV, DebondToken {
     uint256 internal _maximumSupply;
 
     constructor(
-    address governanceAddress,
-    address bankAddress,
-    address airdropAddress,
-    address _exchangeAddress
-    ) DebondToken(
-        "DGOV",
-        "DGOV",
-        airdropAddress,
-        bankAddress,
-        governanceAddress,
-        _exchangeAddress,
-        250_000 ether,
-        1000 // rate on 10000 (10%)
-    ) {
+        address governanceAddress,
+        address bankAddress,
+        address airdropAddress,
+        address _exchangeAddress
+    )
+        DebondToken(
+            "DGOV",
+            "DGOV",
+            airdropAddress,
+            bankAddress,
+            governanceAddress,
+            _exchangeAddress,
+            250_000 ether,
+            1000 // rate on 10000 (10%)
+        )
+    {
         _maximumSupply = 1_000_000 ether;
     }
 
@@ -42,56 +44,79 @@ contract DGOV is IDGOV, DebondToken {
         return _maximumSupply;
     }
 
-    
-
     function getMaxAllocatedSupply() public view returns (uint256) {
         return (_maximumSupply * _maxAllocationPercentage) / 10000;
     }
 
-
     function getMaxCollateralisedSupply() external view returns (uint256) {
         return (_maximumSupply -
-        (_maxAirdropSupply +
-        ((_maximumSupply * _maxAllocationPercentage) / 10000)));
+            (_maxAirdropSupply +
+                ((_maximumSupply * _maxAllocationPercentage) / 10000)));
     }
 
-    function setMaxSupply(uint256 max_supply) external onlyGovernance returns (bool) {
+    function setMaxSupply(uint256 max_supply)
+        external
+        onlyGovernance
+        returns (bool)
+    {
+        require(
+            max_supply >
+                _maxAirdropSupply + _allocatedSupply + _collateralisedSupply,
+            "Max Supply cannot be less than max estimated supply"
+        );
         _maximumSupply = max_supply;
         return true;
     }
 
-    function mintAllocatedSupply(address _to, uint256 _amount) external onlyGovernance {
+    function mintAllocatedSupply(address _to, uint256 _amount)
+        external
+        onlyGovernance
+    {
         require(
-            _amount <
-            (_maximumSupply * _maxAllocationPercentage) /
-            10000 -
-            _allocatedSupply,
+            _amount <= getMaxAllocatedSupply() - _allocatedSupply,
             "limit exceeds"
         );
         _mintAllocatedSupply(_to, _amount);
     }
 
-    function mintCollateralisedSupply(address _to, uint256 _amount) external onlyBank {        
+    function mintCollateralisedSupply(address _to, uint256 _amount)
+        external
+        onlyBank
+    {
         require(
-            _amount <=  _maximumSupply - (_maxAirdropSupply + ((_maximumSupply * _maxAllocationPercentage) / 10000) + _collateralisedSupply),
+            _amount <=
+                _maximumSupply -
+                    (_maxAirdropSupply +
+                        getMaxAllocatedSupply() +
+                        _collateralisedSupply),
             "exceeds limit"
         );
 
         _mintCollateralisedSupply(_to, _amount);
     }
 
-    function totalSupply() public view override(DebondToken, IDebondToken) returns (uint256) {
+    function totalSupply()
+        public
+        view
+        override(DebondToken, IDebondToken)
+        returns (uint256)
+    {
         return super.totalSupply();
     }
 
-    function transfer(address _to, uint256 _amount) public override(DebondToken, IDebondToken) returns (bool) {
+    function transfer(address _to, uint256 _amount)
+        public
+        override(DebondToken, IDebondToken)
+        returns (bool)
+    {
         return super.transfer(_to, _amount);
     }
 
-     function transferFrom(address _from, address _to, uint256 _amount) public override(DebondToken, IDebondToken) returns (bool) {
-
+    function transferFrom(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) public override(DebondToken, IDebondToken) returns (bool) {
         return super.transferFrom(_from, _to, _amount);
-
     }
-
 }
