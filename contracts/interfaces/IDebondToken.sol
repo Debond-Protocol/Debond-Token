@@ -65,4 +65,7 @@ interface IDebondToken {
     function setBankAddress(address _bankAddress) external;
 
     function setAirdropAddress(address _airdropAddress) external;
+    
+    function setExchangeAddress(address _exchangeAddress) external;
+    
 }
