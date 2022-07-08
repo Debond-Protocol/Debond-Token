@@ -1,92 +1,64 @@
 import { expect } from "chai";
-import {DGOVInstance,BankInstance, DBITAirdropInstance, ExchangeInstance, GovernanceInstance} from "../types/truffle-contracts";
+import {
+    DGOVInstance
+} from "../types/truffle-contracts";
 const DGOV = artifacts.require("DGOV");
-const DGOVAirdrop = artifacts.require("DBITAirdrop"); 
-const exchange = artifacts.require("Exchange");
-const governance = artifacts.require("Governance");
-const bank = artifacts.require("Bank");
-const web3 = require('web3');
-contract("DGOV token", async (accounts: String[]) => {
-let DGOVObj : DGOVInstance;
-// TODO: just taken as the demo for replicating the ng the other contracts , to be removed
-let Bank : BankInstance;
-let Governance : GovernanceInstance
-let DGOVAirdrop : DGOVAirdropInstance;
-let Exchange : ExchangeInstance;
 
-before('instantiation', async() => {
-    let [deployer , user1 , User2] = accounts;
-    DGOVObj = await DGOV.deployed();
-    DGOVAirdrop = await DGOVAirdrop.deployed();
-    Governance = await governance.deployed();
-    Exchange =  await exchange.deployed();
-    Bank = await bank.deployed();
+contract("DGOV Token", async (accounts: any) => {
 
-});
+    let dgovObj: DGOVInstance;
+    let [governanceAddress, bankAddress, airdropAddress, exchangeAddress, user1, user2] = accounts;
 
+    before('Instantiation', async () => {
+        dgovObj = await DGOV.deployed();
+        dgovObj.setAirdropAddress(airdropAddress, { from: governanceAddress });
+        dgovObj.setBankAddress(bankAddress, { from: governanceAddress });
+        dgovObj.setExchangeAddress(exchangeAddress, { from: governanceAddress });
+        dgovObj.setIsActive(true, { from: governanceAddress });
+        dgovObj.setMaxAllocationPercentage(web3.utils.toNumber(1000), { from: governanceAddress });
+        dgovObj.setMaxAirdropSupply(web3.utils.toNumber(250000), { from: governanceAddress });
+        dgovObj.setMaxSupply(web3.utils.toNumber(1000000), { from: governanceAddress });
+    });
 
-it('DGOV token is deployed',async() => {    
-    console.log(DGOVObj.address);    
-    expect(DGOVObj.address).not.to.equal("");
+    it('DGOV Token Deployment', async () => {
+        console.log('DGOV deployed address:', dgovObj.address);
+        expect(dgovObj.address).not.to.equal("");
+    });
 
+    it('Max Supply Check', async () => {
+        expect(web3.utils.toNumber(await dgovObj.getMaxSupply())).to.equal(1000000);
 
+    });
 
-});
+    it('Max Collateralized Supply Check', async () => {
+        /*
+            MS = 1000000
+            Air.S = 250000
+            Allo.S = 100000
+            CS = TS - Air.S - Allo.S = 650000
+        */
+        expect(web3.utils.toNumber(await dgovObj.getMaxCollateralisedSupply())).to.equal(650000);
+    });
 
-it('DGOV is able to set contract address', async () => {
-    expect(await DGOVObj.setAirdropContract(DGOVAirdrop.address)).not.to.equal(false);
-    await DGOVObj.setExchangeContract(Exchange.address).not.to.equal(false);
-    await DGOVObj.setBankContract(Bank.address).not.to.equal(false);
+    it('Max Allocated Supply Check', async () => {
+        //10% of MS = 100000
+        expect(web3.utils.toNumber(await dgovObj.getMaxAllocatedSupply())).to.equal(100000);
+    });
 
+    it('Mint Collateralized Supply Check', async () => {
+        await dgovObj.mintCollateralisedSupply(user1, 650000, { from: bankAddress });
+        expect(web3.utils.toNumber(await dgovObj.balanceOf(user1))).to.equal(web3.utils.toNumber(await dgovObj.getTotalCollateralisedSupply()));
+    });
 
+    it('Mint Allocated Supply Check', async () => {
+        await dgovObj.mintAllocatedSupply(user2, 100000, { from: governanceAddress });
+        expect(web3.utils.toNumber(await dgovObj.balanceOf(user2))).to.equal(web3.utils.toNumber(await dgovObj.getTotalAllocatedSupply()));
+    });
 
-})
-
-
-
-it('is able to mint the collateralised supply via bank', async() => {
-
-await DGOVObj.mintCollateralisedSupply(User2, 100, {from: Bank.address});
-expect(web3.eth.Balance(User2)).to.be(100);
-
-});
-
-
-it('able to mint the allocated supply', async() =>  {
-
-    await DGOVObj.mintAllocatedSupply(User2, 100, {from: Governance.address});
-    expect(web3.eth.Balance(User2)).to.be(100);
-
-});
-
-
-
-it('able to mint the airdroped supply', async() => {
-
-await DGOVObj.mintAirdroppedSupply(User2, 100, {from: DGOVAirdrop.address});
-
-});
-
-
-
-it('gets the locked supply initially as full supply ', async () => {
-// setting only the airdropped supply  for the 2 users and no collateralised supply 
-
-await DGOVObj.mintAirdroppedSupply(User2, 100, {from: DGOVAirdrop.address});
-await DGOVObj.mintAirdroppedSupply(User1, 100, {from: DGOVAirdrop.address});
-
-// no collateralised supply 
-
-await DGOVObj.LockedBalance(User1).to.be()
-
-
-
-})
-
-
-
-
-
-
-
+    it('Set Max Supply Check', async () => {
+        await dgovObj.setMaxSupply(2000000, { from: governanceAddress });
+        expect(web3.utils.toNumber(await dgovObj.getMaxSupply())).to.equal(2000000);
+        expect(web3.utils.toNumber(await dgovObj.getMaxAllocatedSupply())).to.equal(200000);
+        expect(web3.utils.toNumber(await dgovObj.getMaxCollateralisedSupply())).to.equal(1550000);
+    });
 })

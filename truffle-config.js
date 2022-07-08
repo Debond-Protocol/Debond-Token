@@ -12,7 +12,7 @@ module.exports = {
   networks: {
     development: {
       host: "127.0.0.1",
-      port: 7545,
+      port: 8545,
       network_id: "*",
       gas: 3500000
     },
@@ -48,3 +48,22 @@ module.exports = {
     }
   }
 };
+
+
+/**
+ * TODO: add the following settings above when needed:
+  module.exports = {
+  compilers: {
+    external: {
+      command: "./compile-contracts",
+      targets: [{
+        path: "./path/to/preprocessed-artifacts/*.json",
+        command: "./process-artifact"
+      }]
+    }
+  }
+}
+* 
+ * 
+ * 
+ */
