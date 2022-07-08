@@ -4,7 +4,7 @@ import "./IDebondToken.sol";
 
 // SPDX-License-Identifier: apache 2.0
 /*
-    Copyright 2021 Debond Protocol <info@debond.org>
+    Copyright 2022 Debond Protocol <info@debond.org>
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
