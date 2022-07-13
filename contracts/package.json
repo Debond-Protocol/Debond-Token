@@ -1,11 +1,25 @@
 {
-  "name": "debond-token-contracts",
-  "version": "0.0.2",
-  "description": "Debond protocol ERC20 Native tokens",
+  "name": "@debond-protocol/debond-token-contracts",
+  "version": "0.0.1",
+  "description": "Debond Token Contracts for DGOV and DBIT Tokens.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "info@debond.org",
-  "license": "ISC"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Debond-Protocol/Debond-Token.git#main"
+  },
+  "keywords": [
+    "token",
+    "debond",
+    "dgov",
+    "dbit"
+  ],
+  "author": "Debond Protocol <info@debond.org>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Debond-Protocol/Debond-Token/issues"
+  },
+  "homepage": "https://github.com/Debond-Protocol/Debond-Token/tree/main#readme"
 }
