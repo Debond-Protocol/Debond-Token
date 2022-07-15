@@ -1,6 +1,6 @@
 {
   "name": "@debond-protocol/debond-token-contracts",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Debond Token Contracts for DGOV and DBIT Tokens.",
   "main": "index.js",
   "scripts": {
