@@ -244,7 +244,7 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
         );
         airdropAddress = _airdropAddress;
     }
-
+    
     function setExchangeAddress(address _exchangeAddress)
         external
         onlyGovernance
@@ -254,5 +254,9 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
             "DebondToken Error: address 0 given"
         );
         exchangeAddress = _exchangeAddress;
+    }
+
+    function burn(uint amount) external {
+        _burn(msg.sender, amount);
     }
 }
