@@ -150,4 +150,13 @@ contract("DBIT Token", async (accounts: any) => {
         //Note: The getTotalBalance() still gives the same balance.
 
     });
+
+    it('Burn DBIT', async () => {
+
+        let balanceDBIT = await dbitObj.balanceOf(user1)
+        await dbitObj.burn(10, {from: user1});
+        let expected = web3.utils.toNumber(balanceDBIT) - 10
+        expect(web3.utils.toNumber(await dbitObj.balanceOf(user1))).to.equal(expected);
+
+    });
 })
