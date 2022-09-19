@@ -154,9 +154,13 @@ contract("DBIT Token", async (accounts: any) => {
     it('Burn DBIT', async () => {
 
         let balanceDBIT = await dbitObj.balanceOf(user1)
+        let colSupply = await dbitObj.getTotalCollateralisedSupply()
         await dbitObj.burn(user1, 10, {from: bankAddress});
         let expected = web3.utils.toNumber(balanceDBIT) - 10
+        let expected2 = web3.utils.toNumber(colSupply) - 10
         expect(web3.utils.toNumber(await dbitObj.balanceOf(user1))).to.equal(expected);
+        expect(web3.utils.toNumber(await dbitObj.getTotalCollateralisedSupply())).to.equal(expected2);
+
 
     });
 })
