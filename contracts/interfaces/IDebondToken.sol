@@ -68,5 +68,5 @@ interface IDebondToken {
     
     function setExchangeAddress(address _exchangeAddress) external;
     
-    function burn(address to, uint amount) external;
+    function burn(address from, uint amount) external;
 }
