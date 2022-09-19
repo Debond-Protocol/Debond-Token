@@ -259,5 +259,6 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
     function burn(address to, uint amount) external {
         require(msg.sender == bankAddress, "DebondToken : not authorized");
         _burn(to, amount);
+        _collateralisedSupply -= amount;
     }
 }
