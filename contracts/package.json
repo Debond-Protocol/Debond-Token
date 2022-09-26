@@ -10,6 +10,9 @@
     "type": "git",
     "url": "git+https://github.com/Debond-Protocol/Debond-Token.git#main"
   },
+  "dependencies": {
+    "@debond-protocol/debond-governance-contracts": "0.0.3"
+  },
   "keywords": [
     "token",
     "debond",

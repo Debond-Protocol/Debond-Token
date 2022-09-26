@@ -62,11 +62,9 @@ interface IDebondToken {
         external
         returns (bool);
 
-    function setBankAddress(address _bankAddress) external;
+    function updateBankAddress(address _bankAddress) external;
 
-    function setAirdropAddress(address _airdropAddress) external;
-    
-    function setExchangeAddress(address _exchangeAddress) external;
-    
+    function updateAirdropAddress(address _airdropAddress) external;
+
     function burn(address from, uint amount) external;
 }

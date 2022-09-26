@@ -8,16 +8,15 @@ const DBIT = artifacts.require("DBIT");
 contract("DBIT Token", async (accounts: any) => {
 
     let dbitObj: DBITInstance;
-    let [governanceAddress, bankAddress, airdropAddress, exchangeAddress, user1, user2, user3] = accounts;
+    let [governanceAddress, bankAddress, airdropAddress, user1, user2, user3] = accounts;
 
     before('Instantiation', async () => {
         dbitObj = await DBIT.deployed();
-        dbitObj.setAirdropAddress(airdropAddress, { from: governanceAddress });
-        dbitObj.setBankAddress(bankAddress, { from: governanceAddress });
-        dbitObj.setExchangeAddress(exchangeAddress, { from: governanceAddress });
-        dbitObj.setIsActive(true, { from: governanceAddress });
-        dbitObj.setMaxAllocationPercentage(web3.utils.toNumber(9999), { from: governanceAddress });
-        dbitObj.setMaxAirdropSupply(web3.utils.toNumber(500000), { from: governanceAddress });
+        await dbitObj.updateAirdropAddress(airdropAddress, { from: governanceAddress });
+        await dbitObj.updateBankAddress(bankAddress, { from: governanceAddress });
+        await dbitObj.setIsActive(true, { from: governanceAddress });
+        await dbitObj.setMaxAllocationPercentage(web3.utils.toNumber(9999), { from: governanceAddress });
+        await dbitObj.setMaxAirdropSupply(web3.utils.toNumber(500000), { from: governanceAddress });
     });
 
     it('DBIT Token Deployment', async () => {

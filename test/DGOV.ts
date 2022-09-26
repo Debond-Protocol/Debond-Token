@@ -11,13 +11,12 @@ contract("DGOV Token", async (accounts: any) => {
 
     before('Instantiation', async () => {
         dgovObj = await DGOV.deployed();
-        dgovObj.setAirdropAddress(airdropAddress, { from: governanceAddress });
-        dgovObj.setBankAddress(bankAddress, { from: governanceAddress });
-        dgovObj.setExchangeAddress(exchangeAddress, { from: governanceAddress });
-        dgovObj.setIsActive(true, { from: governanceAddress });
-        dgovObj.setMaxAllocationPercentage(web3.utils.toNumber(1000), { from: governanceAddress });
-        dgovObj.setMaxAirdropSupply(web3.utils.toNumber(250000), { from: governanceAddress });
-        dgovObj.setMaxSupply(web3.utils.toNumber(1000000), { from: governanceAddress });
+        await dgovObj.updateAirdropAddress(airdropAddress, { from: governanceAddress });
+        await dgovObj.updateBankAddress(bankAddress, { from: governanceAddress });
+        await dgovObj.setIsActive(true, { from: governanceAddress });
+        await dgovObj.setMaxAllocationPercentage(web3.utils.toNumber(1000), { from: governanceAddress });
+        await dgovObj.setMaxAirdropSupply(web3.utils.toNumber(250000), { from: governanceAddress });
+        await dgovObj.setMaxSupply(web3.utils.toNumber(1000000), { from: governanceAddress });
     });
 
     it('DGOV Token Deployment', async () => {

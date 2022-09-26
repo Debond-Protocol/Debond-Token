@@ -18,18 +18,16 @@ import "./DebondToken.sol";
 
 contract DBIT is DebondToken {
     constructor(
-        address governanceAddress,
+        address executableAddress,
         address bankAddress,
-        address airdropAddress,
-        address exchangeAddress
+        address airdropAddress
     )
         DebondToken(
             "DBIT",
             "DBIT",
             airdropAddress,
             bankAddress,
-            governanceAddress,
-            exchangeAddress,
+            executableAddress,
             500_000 ether,
             1000 // rate on 10000 (10%)
         )
@@ -44,7 +42,7 @@ contract DBIT is DebondToken {
 
     function mintAllocatedSupply(address _to, uint256 _amount)
         external
-        onlyGovernance
+        onlyExecutable
     {
         require(
             _amount <
