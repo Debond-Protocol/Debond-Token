@@ -21,18 +21,16 @@ contract DGOV is IDGOV, DebondToken {
     uint256 internal _maximumSupply;
 
     constructor(
-        address governanceAddress,
+        address executableAddress,
         address bankAddress,
-        address airdropAddress,
-        address _exchangeAddress
+        address airdropAddress
     )
         DebondToken(
             "DGOV",
             "DGOV",
             airdropAddress,
             bankAddress,
-            governanceAddress,
-            _exchangeAddress,
+            executableAddress,
             250_000 ether,
             1000 // rate on 10000 (10%)
         )
@@ -56,7 +54,7 @@ contract DGOV is IDGOV, DebondToken {
 
     function setMaxSupply(uint256 max_supply)
         external
-        onlyGovernance
+        onlyExecutable
         returns (bool)
     {
         require(
@@ -70,7 +68,7 @@ contract DGOV is IDGOV, DebondToken {
 
     function mintAllocatedSupply(address _to, uint256 _amount)
         external
-        onlyGovernance
+        onlyExecutable
     {
         require(
             _amount <= getMaxAllocatedSupply() - _allocatedSupply,

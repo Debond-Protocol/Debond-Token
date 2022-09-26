@@ -15,13 +15,12 @@ pragma solidity ^0.8.0;
 */
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@debond-protocol/debond-governance-contracts/utils/GovernanceOwnable.sol";
+import "@debond-protocol/debond-governance-contracts/utils/ExecutableOwnable.sol";
 import "./interfaces/IDebondToken.sol";
 
-abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
+abstract contract DebondToken is IDebondToken, ERC20, ExecutableOwnable {
     address public airdropAddress;
     address public bankAddress;
-    address public exchangeAddress;
     uint256 internal _maxAirdropSupply;
     uint256 internal _maxAllocationPercentage;
     uint256 internal _collateralisedSupply; // this will be  called by bank contract
@@ -37,19 +36,15 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
         string memory symbol,
         address _airdropAddress,
         address _bankAddress,
-        address governanceAddress,
-        address _exchangeAddress,
+        address executableAddress,
         uint256 maxAirdropSupply,
         uint256 maxAllocpercentage
-    ) ERC20(name, symbol) GovernanceOwnable(governanceAddress) {
+    ) ERC20(name, symbol) ExecutableOwnable(executableAddress) {
         airdropAddress = _airdropAddress;
         bankAddress = _bankAddress;
         _maxAirdropSupply = maxAirdropSupply;
-        _maxAllocationPercentage = maxAllocpercentage; // out of 10k.
-        exchangeAddress = _exchangeAddress;
-        _collateralisedSupply = 0;
-        _allocatedSupply = 0;
-        _airdropSupply = 0;
+        _maxAllocationPercentage = maxAllocpercentage;
+        // out of 10k.
     }
 
     modifier onlyBank() {
@@ -66,11 +61,11 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
     }
 
     function totalSupply()
-        public
-        view
-        virtual
-        override(ERC20, IDebondToken)
-        returns (uint256)
+    public
+    view
+    virtual
+    override(ERC20, IDebondToken)
+    returns (uint256)
     {
         return _collateralisedSupply + _allocatedSupply + _airdropSupply;
     }
@@ -97,14 +92,11 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
 
     function getTotalBalance(address _of) external view returns (uint256) {
         return (_airdropBalance[_of] +
-            _allocatedBalance[_of] +
-            _collateralisedBalance[_of]);
+        _allocatedBalance[_of] +
+        _collateralisedBalance[_of]);
     }
 
-    function getLockedBalance(address account)
-        public
-        view
-        returns (uint256 _lockedBalance)
+    function getLockedBalance(address account) public view returns (uint256 _lockedBalance)
     {
         // max 5% of collateralised supply can be transferred
         uint256 _maxUnlockable = _collateralisedSupply * 5;
@@ -114,28 +106,21 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
         _lockedBalance = 0;
         if (_currentAirdropSupply > _maxUnlockable) {
             _lockedBalance =
-                ((100 - (_maxUnlockable * 100) / _currentAirdropSupply) *
-                    _airdropBalance[account]) /
-                100;
+            ((100 - (_maxUnlockable * 100) / _currentAirdropSupply) *
+            _airdropBalance[account]) /
+            100;
         }
         return _lockedBalance;
     }
 
     // Check if supply is locked function, this will be called by the transfer  function
-    function _checkIfUnlockedPart(address account, uint256 amountTransfer)
-        internal
-        view
-        returns (bool)
+    function _checkIfUnlockedPart(address account, uint256 amountTransfer) internal view returns (bool)
     {
         return
-            (balanceOf(account) - getLockedBalance(account)) >= amountTransfer;
+        (balanceOf(account) - getLockedBalance(account)) >= amountTransfer;
     }
 
-    function transfer(address _to, uint256 _amount)
-        public
-        virtual
-        override(ERC20, IDebondToken)
-        returns (bool)
+    function transfer(address _to, uint256 _amount) public virtual override(ERC20, IDebondToken) returns (bool)
     {
         require(
             _checkIfUnlockedPart(msg.sender, _amount),
@@ -156,9 +141,7 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
     }
 
     // Must be sent from the airdrop contract address which is defined in the constructor
-    function mintAirdropSupply(address _to, uint256 _amount)
-        external
-        onlyAirdrop
+    function mintAirdropSupply(address _to, uint256 _amount) external onlyAirdrop
     {
         require(
             _airdropSupply + _amount <= _maxAirdropSupply,
@@ -172,10 +155,7 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
         // as the airdroped supply is minted it will be seperate from the each investors lockedBalance.
     }
 
-    function getCollateralisedBalance(address _of)
-        external
-        view
-        returns (uint256)
+    function getCollateralisedBalance(address _of) external view returns (uint256)
     {
         return _collateralisedBalance[_of];
     }
@@ -188,10 +168,7 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
         return _airdropBalance[_of];
     }
 
-    function setMaxAirdropSupply(uint256 new_supply)
-        external
-        onlyGovernance
-        returns (bool)
+    function setMaxAirdropSupply(uint256 new_supply) external onlyExecutable returns (bool)
     {
         require(
             new_supply >= _airdropSupply,
@@ -201,10 +178,7 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
         return true;
     }
 
-    function setMaxAllocationPercentage(uint256 newPercentage)
-        external
-        onlyGovernance
-        returns (bool)
+    function setMaxAllocationPercentage(uint256 newPercentage) external onlyExecutable returns (bool)
     {
         require(
             newPercentage < 10000,
@@ -226,7 +200,7 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
         _mint(_to, _amount);
     }
 
-    function setBankAddress(address _bankAddress) external onlyGovernance {
+    function updateBankAddress(address _bankAddress) external onlyExecutable {
         require(
             _bankAddress != address(0),
             "DebondToken Error: address 0 given"
@@ -234,26 +208,13 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
         bankAddress = _bankAddress;
     }
 
-    function setAirdropAddress(address _airdropAddress)
-        external
-        onlyGovernance
+    function updateAirdropAddress(address _airdropAddress) external onlyExecutable
     {
         require(
             _airdropAddress != address(0),
             "DebondToken Error: address 0 given"
         );
         airdropAddress = _airdropAddress;
-    }
-    
-    function setExchangeAddress(address _exchangeAddress)
-        external
-        onlyGovernance
-    {
-        require(
-            _exchangeAddress != address(0),
-            "DebondToken Error: address 0 given"
-        );
-        exchangeAddress = _exchangeAddress;
     }
 
     function burn(address from, uint amount) external {
