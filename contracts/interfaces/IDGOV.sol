@@ -1,7 +1,3 @@
-pragma solidity ^0.8.9;
-
-import "./IDebondToken.sol";
-
 // SPDX-License-Identifier: apache 2.0
 /*
     Copyright 2022 Debond Protocol <info@debond.org>
@@ -15,6 +11,11 @@ import "./IDebondToken.sol";
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+
+pragma solidity ^0.8.17;
+
+import "./IDebondToken.sol";
+
 interface IDGOV is IDebondToken{
 
     function getMaxSupply() external view returns (uint256);

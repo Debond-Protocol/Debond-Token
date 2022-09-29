@@ -1,5 +1,3 @@
-pragma solidity ^0.8.9;
-
 // SPDX-License-Identifier: apache 2.0
 /*
     Copyright 2022 Debond Protocol <info@debond.org>
@@ -13,6 +11,9 @@ pragma solidity ^0.8.9;
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+
+pragma solidity ^0.8.17;
+
 interface IDebondToken {
     function totalSupply() external view returns (uint256);
 
