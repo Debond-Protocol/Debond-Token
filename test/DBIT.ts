@@ -89,7 +89,7 @@ contract("DBIT Token", async (accounts: any) => {
         /*
         CS = 3000
         AS = 3000
-        Max_Unlocked = 5% of 3000 (CS) = 150
+        Max_Unlockable = 5 * 3000 (CS) = 150000
         Since Max_Unlocked < AS:
             Unlocked_Ratio = 150/AS = 150/3000
         User 1 Locked Balance = User 1  Airdrop Balance * (1-Unlocked Ratio) = 2000*(1-150/3000) = 1900
@@ -98,6 +98,23 @@ contract("DBIT Token", async (accounts: any) => {
         expect(web3.utils.toNumber(await dbitObj.getLockedBalance(user1))).to.equal(1900);
         expect(web3.utils.toNumber(await dbitObj.getLockedBalance(user2))).to.equal(950);
     });
+
+
+    it('user has no locked balance ', async() => {
+        const amtAirdropped = web3.utils.toNumber(1000);
+        await dbitObj.mintAirdropSupply(user3, amtAirdropped, { from: airdropAddress });
+        await dbitObj.mintCollateralisedSupply(user3, web3.utils.toNumber(100), {from: bankAddress});
+        expect(web3.utils.toNumber(await dbitObj.getLockedBalance(user1))).to.equal(0);
+
+    });
+
+    it('transfer was not successful as _checkIfUnlockedSupply is false', async () => {
+        const amt = web3.utils.toNumber(10000000);
+        await dbitObj.transferFrom(user3, user1,amt,{from : user3});
+
+    });
+
+
 
     it('User Collateralized Balance Check', async () => {
         const amt = web3.utils.toNumber(1000);

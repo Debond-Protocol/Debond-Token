@@ -106,15 +106,12 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
         view
         returns (uint256 _lockedBalance)
     {
-        // max 5% of collateralised supply can be transferred
-        uint256 _maxUnlockable = _collateralisedSupply * 5;
-        // multiplying by 100, since _maxUnlockable isn't divided by 100
-        uint256 _currentAirdropSupply = _airdropSupply * 100;
-
+        // max 5% of collateralised supply can be transferred.
+        uint256 _maxUnlockable = (_collateralisedSupply * 5 ) / 100;
         _lockedBalance = 0;
-        if (_currentAirdropSupply > _maxUnlockable) {
+        if (_airdropSupply > _maxUnlockable) {
             _lockedBalance =
-                ((100 - (_maxUnlockable * 100) / _currentAirdropSupply) *
+                ((100 - (_maxUnlockable) / _airdropSupply) *
                     _airdropBalance[account]) /
                 100;
         }
@@ -201,6 +198,9 @@ abstract contract DebondToken is IDebondToken, ERC20, GovernanceOwnable {
         return true;
     }
 
+    /**
+    @notice param newPercentage is in 10**4 value.
+     */
     function setMaxAllocationPercentage(uint256 newPercentage)
         external
         onlyGovernance
