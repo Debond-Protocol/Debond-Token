@@ -50,7 +50,7 @@ contract("DGOV Token", async (accounts: any) => {
     });
 
     it('Mint Allocated Supply Check', async () => {
-        await dgovObj.mintAllocatedSupply(user2, 100000, { from: governanceAddress });
+        await dgovObj.mintAllocatedSupply(user2, 60000, { from: governanceAddress });
         expect(web3.utils.toNumber(await dgovObj.balanceOf(user2))).to.equal(web3.utils.toNumber(await dgovObj.getTotalAllocatedSupply()));
     });
 
