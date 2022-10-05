@@ -25,15 +25,15 @@ contract DGOV is IDGOV, DebondToken {
         address bankAddress,
         address airdropAddress
     )
-        DebondToken(
-            "DGOV",
-            "DGOV",
-            airdropAddress,
-            bankAddress,
-            executableAddress,
-            250_000 ether,
-            1000 // rate on 10000 (10%)
-        )
+    DebondToken(
+        "DGOV",
+        "DGOV",
+        airdropAddress,
+        bankAddress,
+        executableAddress,
+        250_000 ether,
+        1000 // rate on 10000 (10%)
+    )
     {
         _maximumSupply = 1_000_000 ether;
     }
@@ -48,45 +48,34 @@ contract DGOV is IDGOV, DebondToken {
 
     function getMaxCollateralisedSupply() external view returns (uint256) {
         return (_maximumSupply -
-            (_maxAirdropSupply +
-                ((_maximumSupply * _maxAllocationPercentage) / 10000)));
+        (_maxAirdropSupply +
+        ((_maximumSupply * _maxAllocationPercentage) / 10000)));
     }
 
     function setMaxSupply(uint256 max_supply)
-        external
-        onlyExecutable
-        returns (bool)
+    external
+    onlyExecutable
+    returns (bool)
     {
         require(
             max_supply >
-                _maxAirdropSupply + _allocatedSupply + _collateralisedSupply,
+            _maxAirdropSupply + _allocatedSupply + _collateralisedSupply,
             "Max Supply cannot be less than max estimated supply"
         );
         _maximumSupply = max_supply;
         return true;
     }
 
-    function mintAllocatedSupply(address _to, uint256 _amount)
-        external
-        onlyExecutable
-    {
-        require(
-            _amount <= getMaxAllocatedSupply() - _allocatedSupply,
-            "limit exceeds"
-        );
-        _mintAllocatedSupply(_to, _amount);
-    }
-
     function mintCollateralisedSupply(address _to, uint256 _amount)
-        external
-        onlyBank
+    external
+    onlyBank
     {
         require(
             _amount <=
-                _maximumSupply -
-                    (_maxAirdropSupply +
-                        getMaxAllocatedSupply() +
-                        _collateralisedSupply),
+            _maximumSupply -
+            (_maxAirdropSupply +
+            getMaxAllocatedSupply() +
+            _collateralisedSupply),
             "exceeds limit"
         );
 
@@ -94,18 +83,18 @@ contract DGOV is IDGOV, DebondToken {
     }
 
     function totalSupply()
-        public
-        view
-        override(DebondToken, IDebondToken)
-        returns (uint256)
+    public
+    view
+    override(DebondToken, IDebondToken)
+    returns (uint256)
     {
         return super.totalSupply();
     }
 
     function transfer(address _to, uint256 _amount)
-        public
-        override(DebondToken, IDebondToken)
-        returns (bool)
+    public
+    override(DebondToken, IDebondToken)
+    returns (bool)
     {
         return super.transfer(_to, _amount);
     }

@@ -22,36 +22,22 @@ contract DBIT is DebondToken {
         address bankAddress,
         address airdropAddress
     )
-        DebondToken(
-            "DBIT",
-            "DBIT",
-            airdropAddress,
-            bankAddress,
-            executableAddress,
-            500_000 ether,
-            1000 // rate on 10000 (10%)
-        )
+    DebondToken(
+        "DBIT",
+        "DBIT",
+        airdropAddress,
+        bankAddress,
+        executableAddress,
+        500_000 ether,
+        1000 // rate on 10000 (10%)
+    )
     {}
 
     function mintCollateralisedSupply(address _to, uint256 _amount)
-        external
-        onlyBank
+    external
+    onlyBank
     {
         _mintCollateralisedSupply(_to, _amount);
-    }
-
-    function mintAllocatedSupply(address _to, uint256 _amount)
-        external
-        onlyExecutable
-    {
-        require(
-            _amount <
-                (totalSupply() * _maxAllocationPercentage) /
-                    10000 -
-                    _allocatedSupply,
-            "limit exceeds"
-        );
-        _mintAllocatedSupply(_to, _amount);
     }
 
     function totalSupply() public view override(DebondToken) returns (uint256) {
@@ -59,9 +45,9 @@ contract DBIT is DebondToken {
     }
 
     function transfer(address _to, uint256 _amount)
-        public
-        override(DebondToken)
-        returns (bool)
+    public
+    override(DebondToken)
+    returns (bool)
     {
         return super.transfer(_to, _amount);
     }
