@@ -155,6 +155,20 @@ abstract contract DebondToken is IDebondToken, ERC20, ExecutableOwnable {
         // as the airdroped supply is minted it will be seperate from the each investors lockedBalance.
     }
 
+    function mintAllocatedSupply(address _to, uint256 _amount)
+    external
+    onlyExecutable
+    {
+        require(
+            _amount <
+            (totalSupply() * _maxAllocationPercentage) /
+            10000 -
+            _allocatedSupply,
+            "limit exceeds"
+        );
+        _mintAllocatedSupply(_to, _amount);
+    }
+
     function getCollateralisedBalance(address _of) external view returns (uint256)
     {
         return _collateralisedBalance[_of];
